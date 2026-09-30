@@ -7,6 +7,7 @@ import { NAV_ITEMS } from "../constants";
 import type { NavItem } from "../types";
 import MegaMenu from "./MegaMenu";
 import { Link } from "react-router-dom";
+import Logo from "@/shared/components/Logo";
 
 function CountBadge({ count }: { count: number }) {
   if (count === 0) return null;
@@ -79,8 +80,8 @@ export default function Navbar() {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <Link to="/" className="text-2xl font-bold tracking-wide text-[#0a1f44]">
-          SHOP<span className="text-red-600">ORA</span>
+        <Link to="/" aria-label="Shopora home">
+          <Logo />
         </Link>
 
         <ul className="hidden h-full items-stretch gap-8 md:flex">
