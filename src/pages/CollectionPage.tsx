@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   CategoryFilter,
   PRODUCT_FILTERS,
@@ -13,8 +13,19 @@ import {
 import { EASE, fadeUp, staggerContainer } from "@/shared/animations/variants";
 import NotFoundPage from "./NotFoundPage";
 
-function CollectionView({ collection }: { collection: Collection }) {
-  const [filter, setFilter] = useState<ProductFilter>("all");
+type CollectionViewProps = {
+  collection: Collection;
+  initialFilter: ProductFilter;
+};
+
+function CollectionView({ collection, initialFilter }: CollectionViewProps) {
+  const [filter, setFilter] = useState<ProductFilter>(initialFilter);
+
+  const filterOptions = PRODUCT_FILTERS.filter(
+    (option) =>
+      option.value === "all" ||
+      collection.products.some((product) => product.category === option.value)
+  );
 
   const visibleProducts =
     filter === "all"
@@ -63,7 +74,7 @@ function CollectionView({ collection }: { collection: Collection }) {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <CategoryFilter options={PRODUCT_FILTERS} value={filter} onChange={setFilter} />
+        <CategoryFilter options={filterOptions} value={filter} onChange={setFilter} />
 
         <p className="mt-6 text-center text-sm text-gray-500">
           {visibleProducts.length} items
@@ -84,11 +95,27 @@ function CollectionView({ collection }: { collection: Collection }) {
   );
 }
 
+const isValidFilter = (value: string | null, collection: Collection): value is ProductFilter =>
+  PRODUCT_FILTERS.some((option) => option.value === value) &&
+  (value === "all" || collection.products.some((product) => product.category === value));
+
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const collection = getCollection(slug);
 
   if (!collection) return <NotFoundPage />;
 
-  return <CollectionView key={collection.slug} collection={collection} />;
+  const requested = searchParams.get("filter");
+  const initialFilter: ProductFilter = isValidFilter(requested, collection)
+    ? requested
+    : "all";
+
+  return (
+    <CollectionView
+      key={`${collection.slug}-${initialFilter}`}
+      collection={collection}
+      initialFilter={initialFilter}
+    />
+  );
 }
