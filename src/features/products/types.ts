@@ -10,3 +10,11 @@ export type Product = {
   image: string;
   tag?: string;
 };
+
+export type Collection = {
+  slug: string;
+  title: string;
+  description: string;
+  banner: string;
+  products: Product[];
+};
