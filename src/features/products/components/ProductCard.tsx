@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Heart } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { EASE } from "@/shared/animations/variants";
 import type { Product } from "../types";
 
@@ -11,10 +11,17 @@ const formatPrice = (price: number): string =>
     maximumFractionDigits: 0,
   }).format(price);
 
+const formatCount = (count: number): string =>
+  count >= 1000 ? `${(count / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(count);
+
 type ProductCardProps = { product: Product; index: number };
 
 export default function ProductCard({ product, index }: ProductCardProps) {
   const [liked, setLiked] = useState<boolean>(false);
+
+  const discount = product.originalPrice
+    ? Math.round((1 - product.price / product.originalPrice) * 100)
+    : 0;
 
   return (
     <motion.article
@@ -57,17 +64,37 @@ export default function ProductCard({ product, index }: ProductCardProps) {
             />
           </motion.span>
         </motion.button>
+
+        {product.rating !== undefined && (
+          <span className="absolute bottom-3 left-3 flex items-center gap-1 rounded bg-white/95 px-2 py-1 text-xs font-semibold text-gray-800 shadow">
+            <Star size={12} className="fill-green-600 text-green-600" />
+            {product.rating.toFixed(1)}
+            {product.reviews !== undefined && (
+              <span className="border-l border-gray-300 pl-1 font-normal text-gray-500">
+                {formatCount(product.reviews)}
+              </span>
+            )}
+          </span>
+        )}
       </div>
 
       <div className="mt-3">
-        <p className="text-xs uppercase tracking-widest text-gray-500">
-          {product.category}
+        <p className="text-xs font-bold uppercase tracking-widest text-[#0a1f44]">
+          {product.brand ?? product.category}
         </p>
-        <h3 className="mt-1 text-sm font-semibold text-[#0a1f44] md:text-base">
+        <h3 className="mt-1 truncate text-sm text-gray-600 md:text-base">
           {product.title}
         </h3>
-        <p className="mt-1 text-sm font-medium text-gray-800">
-          {formatPrice(product.price)}
+        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-sm">
+          <span className="font-bold text-gray-900">{formatPrice(product.price)}</span>
+          {product.originalPrice && (
+            <span className="text-xs text-gray-400 line-through">
+              {formatPrice(product.originalPrice)}
+            </span>
+          )}
+          {discount > 0 && (
+            <span className="text-xs font-semibold text-red-600">({discount}% OFF)</span>
+          )}
         </p>
       </div>
     </motion.article>
