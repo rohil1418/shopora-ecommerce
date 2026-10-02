@@ -9,6 +9,10 @@ export type Product = {
   category: ProductCategory;
   image: string;
   tag?: string;
+  brand?: string;
+  originalPrice?: number;
+  rating?: number;
+  reviews?: number;
 };
 
 export type Collection = {
