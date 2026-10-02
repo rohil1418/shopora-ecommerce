@@ -1,7 +1,10 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { EASE, fadeUp, staggerContainer } from "@/shared/animations/variants";
+
+const MotionLink = motion.create(Link);
 
 export type HeroBannerProps = {
   eyebrow?: string;
@@ -31,6 +34,7 @@ export default function HeroBanner({
 
   const alignment =
     align === "center" ? "items-center text-center" : "items-start text-left";
+  const isLink = href !== "#";
 
   return (
     <section
@@ -49,12 +53,16 @@ export default function HeroBanner({
       />
       <div className="absolute inset-0 bg-black/30" />
 
+      {isLink && (
+        <Link to={href} aria-hidden tabIndex={-1} className="absolute inset-0 z-10" />
+      )}
+
       <motion.div
         variants={staggerContainer(0.15, 0.3)}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
-        className={`relative mx-auto flex h-full max-w-7xl flex-col justify-end gap-3 px-6 pb-12 text-white ${alignment}`}
+        className={`pointer-events-none relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end gap-3 px-6 pb-12 text-white ${alignment}`}
       >
         {eyebrow && (
           <motion.p variants={fadeUp} className="text-xs uppercase tracking-[0.25em]">
@@ -69,10 +77,10 @@ export default function HeroBanner({
             {description}
           </motion.p>
         )}
-        <motion.a
+        <MotionLink
           variants={fadeUp}
-          href={href}
-          className="group relative mt-2 inline-flex items-center overflow-hidden border border-white px-6 py-2.5 text-sm font-medium uppercase tracking-wide"
+          to={href}
+          className="group pointer-events-auto relative mt-2 inline-flex items-center overflow-hidden border border-white px-6 py-2.5 text-sm font-medium uppercase tracking-wide"
         >
           <span className="absolute inset-0 -translate-x-full bg-white transition-transform duration-300 ease-out group-hover:translate-x-0" />
           <span className="relative flex items-center gap-2 transition-colors duration-300 group-hover:text-[#0a1f44]">
@@ -82,7 +90,7 @@ export default function HeroBanner({
               className="transition-transform duration-300 group-hover:translate-x-1"
             />
           </span>
-        </motion.a>
+        </MotionLink>
       </motion.div>
     </section>
   );
