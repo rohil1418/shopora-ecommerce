@@ -57,7 +57,7 @@ export const features: FeatureItem[] = [
     description: "Relaxed fits and modern classics.",
     ctaLabel: "Shop Now",
     image: getImage("feature-1", 800, 1000),
-    href: "#",
+    href: "/collections/denim",
   },
   {
     title: "Signature Collection",
@@ -71,6 +71,6 @@ export const features: FeatureItem[] = [
     description: "Performance meets everyday style.",
     ctaLabel: "Shop Now",
     image: getImage("feature-3", 800, 1000),
-    href: "#",
+    href: "/collections/sport",
   },
 ];
