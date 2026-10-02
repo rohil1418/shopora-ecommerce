@@ -42,7 +42,8 @@ export default function HeroBanner({
         alt={title}
         style={{ y: imageY }}
         initial={{ scale: 1.15 }}
-        animate={{ scale: 1 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true }}
         transition={{ duration: 2, ease: EASE }}
         className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
       />
@@ -51,7 +52,8 @@ export default function HeroBanner({
       <motion.div
         variants={staggerContainer(0.15, 0.3)}
         initial="hidden"
-        animate="visible"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
         className={`relative mx-auto flex h-full max-w-7xl flex-col justify-end gap-3 px-6 pb-12 text-white ${alignment}`}
       >
         {eyebrow && (
