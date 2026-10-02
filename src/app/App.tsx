@@ -7,6 +7,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ScrollToTop from "../shared/components/ScrollToTop";
 import { PanelProvider } from "../shared/panels";
 import PanelHost from "./PanelHost";
+import SignatureCollectionPage from "../pages/SignatureCollectionPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="*" element={<NotFoundPage />} />
+            <Route path="/collections/signature" element={<SignatureCollectionPage />} />
           </Routes>
           <Footer />
           <PanelHost />
