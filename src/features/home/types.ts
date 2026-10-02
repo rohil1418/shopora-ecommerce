@@ -5,6 +5,7 @@ export type CollectionItem = { title: string; image: string; href: string };
 export type CategoryItem = {
   title: string;
   image: string;
+  href: string;
   menHref: string;
   womenHref: string;
 };
