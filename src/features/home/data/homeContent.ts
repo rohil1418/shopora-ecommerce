@@ -33,8 +33,8 @@ export const heroSecondary: HeroBannerProps = {
   eyebrow: "Winter Edit",
   title: "Cosy Knits Are Here",
   description: "Soft textures and timeless cuts for colder days.",
-  ctaLabel: "Shop Knitwear",
-  href: "#",
+  ctaLabel: "Shop Winter Wear",
+  href: "/collections/winter",
   image: getImage("hero-2", 1440, 900),
   align: "center",
 };
@@ -44,11 +44,17 @@ export const categoriesHeading: SectionHeadingContent = {
   title: "Shop by Category",
 };
 
+const categoryLinks = (slug: string) => ({
+  href: `/collections/${slug}`,
+  womenHref: `/collections/${slug}?filter=women`,
+  menHref: `/collections/${slug}?filter=men`,
+});
+
 export const categories: CategoryItem[] = [
-  { title: "Shirts", image: getImage("category-1", 600, 600), menHref: "#", womenHref: "#" },
-  { title: "Footwear", image: getImage("category-2", 600, 600), menHref: "#", womenHref: "#" },
-  { title: "Trousers", image: getImage("category-3", 600, 600), menHref: "#", womenHref: "#" },
-  { title: "Bags", image: getImage("category-4", 600, 600), menHref: "#", womenHref: "#" },
+  { title: "Polo Shirts", image: getImage("category-1", 600, 600), ...categoryLinks("polo-shirts") },
+  { title: "Footwear", image: getImage("category-2", 600, 600), ...categoryLinks("footwear") },
+  { title: "Trousers", image: getImage("category-3", 600, 600), ...categoryLinks("trousers") },
+  { title: "Bags", image: getImage("category-4", 600, 600), ...categoryLinks("bags") },
 ];
 
 export const features: FeatureItem[] = [
