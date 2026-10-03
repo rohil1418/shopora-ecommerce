@@ -25,8 +25,8 @@ export const collectionsHeading: SectionHeadingContent = {
 export const collections: CollectionItem[] = [
   { title: "Classic Polos", image: getImage("collection-1", 600, 800), href: "#" },
   { title: "Varsity Jackets", image: getImage("collection-2", 600, 800), href: "#" },
-  { title: "Knit Sweaters", image: getImage("collection-3", 600, 800), href: "#" },
-  { title: "Everyday Denim", image: getImage("collection-4", 600, 800), href: "#" },
+  { title: "Perfumes", image: getImage("collection-3", 600, 800), href: "#" },
+  { title: "Beauty", image: getImage("collection-4", 600, 800), href: "#" },
 ];
 
 export const heroSecondary: HeroBannerProps = {
@@ -59,7 +59,7 @@ export const categories: CategoryItem[] = [
 
 export const features: FeatureItem[] = [
   {
-    title: "Denim Edit",
+    title: "Denim",
     description: "Relaxed fits and modern classics.",
     ctaLabel: "Shop Now",
     image: getImage("feature-1", 800, 1000),
@@ -73,7 +73,7 @@ export const features: FeatureItem[] = [
     href: "/collections/signature",
   },
   {
-    title: "Sport Edit",
+    title: "Sportswear",
     description: "Performance meets everyday style.",
     ctaLabel: "Shop Now",
     image: getImage("feature-3", 800, 1000),
