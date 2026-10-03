@@ -244,6 +244,23 @@ const collections: Collection[] = [
       [8, "Mini Meadow", "Fleece Hoodie Set", 1699, 2699, "girls", 4.5, 740],
     ]),
   },
+    {
+    slug: "fall-2026",
+    title: "Only In The City",
+    description:
+      "Our Fall 2026 campaign. Urban layers, rich textures and city-ready essentials for the new season.",
+    banner: getImage("fall-2026-banner", 1440, 600),
+    products: makeProducts("fall-2026", [
+      [1, "Northline", "Urban Commuter Jacket", 5499, 8199, "men", 4.5, 1300, "New"],
+      [2, "Hollis Row", "Merino Crew Neck Sweater", 3299, 4799, "men", 4.4, 980],
+      [3, "Oakwell", "Relaxed Pleated Trousers", 2899, 4299, "men", 4.3, 720],
+      [4, "Kora", "Minimal Leather Sneakers", 3799, 5599, "men", 4.5, 1600, "Bestseller"],
+      [5, "Aster & Co", "Belted Wool Coat", 8299, 11999, "women", 4.6, 540, "New"],
+      [6, "Aster & Co", "Ribbed Knit Midi Dress", 3599, 5199, "women", 4.4, 860],
+      [7, "Velora", "Slim Ankle Boots", 4299, 6299, "women", 4.5, 1100, "Bestseller"],
+      [8, "Kora", "Structured City Tote", 3499, 5199, "accessories", 4.4, 950],
+    ]),
+  },
 ];
 
 export const getCollection = (slug: string | undefined): Collection | undefined =>
