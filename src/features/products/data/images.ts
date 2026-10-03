@@ -1,9 +1,9 @@
-const localImages = import.meta.glob("../assets/*.{jpg,jpeg,png,webp}", {
+const localImages = import.meta.glob("../assets/*.{jpg,jpeg,png,webp,avif}", {
   eager: true,
   import: "default",
 }) as Record<string, string>;
 
-const EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+const EXTENSIONS = ["jpg", "jpeg", "png", "webp", "avif"];
 
 export const getImage = (name: string, width: number, height: number): string => {
   for (const ext of EXTENSIONS) {
