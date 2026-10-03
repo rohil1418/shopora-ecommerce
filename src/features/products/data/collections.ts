@@ -6,6 +6,11 @@ export const PRODUCT_FILTERS: { value: ProductFilter; label: string }[] = [
   { value: "men", label: "Men" },
   { value: "women", label: "Women" },
   { value: "accessories", label: "Accessories" },
+  { value: "boys", label: "Boys" },
+  { value: "girls", label: "Girls" },
+  { value: "makeup", label: "Makeup" },
+  { value: "skincare", label: "Skincare" },
+  { value: "haircare", label: "Haircare" },
 ];
 
 type Row = [
@@ -169,6 +174,74 @@ const collections: Collection[] = [
       [6, "Oakwell", "Turtleneck Knit Sweater", 2799, 4199, "women", 4.5, 2200, "Bestseller"],
       [7, "Kora", "Quilted Puffer Jacket", 5499, 7999, "women", 4.4, 1700],
       [8, "Kora", "Cosy Fleece Sweatshirt", 2299, 3499, "women", 4.3, 1400],
+    ]),
+  },
+    {
+    slug: "perfume",
+    title: "Perfume",
+    description:
+      "Signature scents for every mood. From deep woody notes to fresh florals, find the fragrance that is yours.",
+    banner: getImage("perfume-banner", 1440, 600),
+    products: makeProducts("perfume", [
+      [1, "Maison Velour", "Noir Intense Eau de Parfum", 3499, 5499, "men", 4.5, 3200, "Bestseller"],
+      [2, "Oud & Co", "Royal Oud Eau de Parfum", 4299, 6499, "men", 4.6, 1400, "New"],
+      [3, "Noir Atelier", "Citrus Fresh Eau de Toilette", 1999, 3299, "men", 4.3, 2600],
+      [4, "Noir Atelier", "Woody Sport Body Mist", 1299, 1999, "men", 4.2, 1800],
+      [5, "Aurelle", "Rose Bloom Eau de Parfum", 3299, 4999, "women", 4.6, 2900, "Bestseller"],
+      [6, "Aurelle", "Vanilla Musk Eau de Parfum", 3799, 5799, "women", 4.5, 1600, "New"],
+      [7, "Maison Velour", "Jasmine Dream Eau de Toilette", 2299, 3699, "women", 4.4, 1300],
+      [8, "Aurelle", "Fruity Splash Body Mist", 1199, 1899, "women", 4.3, 2100],
+    ]),
+  },
+  {
+    slug: "beauty",
+    title: "Beauty",
+    description:
+      "Makeup, skincare and haircare essentials. Glow up with products you will reach for every single day.",
+    banner: getImage("beauty-banner", 1440, 600),
+    products: makeProducts("beauty", [
+      [1, "Glowa", "Matte Liquid Lipstick", 599, 999, "makeup", 4.3, 5400, "Bestseller"],
+      [2, "Lumière Labs", "Soft Matte Foundation", 1099, 1799, "makeup", 4.4, 2300],
+      [3, "Glowa", "Smudge-Proof Kajal", 299, 499, "makeup", 4.2, 6800],
+      [4, "Petal & Pine", "Vitamin C Face Serum", 799, 1299, "skincare", 4.5, 4100, "Bestseller"],
+      [5, "Petal & Pine", "Hydrating Gel Moisturiser", 649, 999, "skincare", 4.4, 2900],
+      [6, "Rosewell", "SPF 50 Sunscreen Lotion", 549, 899, "skincare", 4.3, 3600, "New"],
+      [7, "Rosewell", "Argan Smooth Shampoo", 449, 749, "haircare", 4.2, 2100],
+      [8, "Rosewell", "Nourishing Hair Oil", 399, 649, "haircare", 4.4, 1800, "New"],
+    ]),
+  },
+  {
+    slug: "varsity-jackets",
+    title: "Varsity Jackets",
+    description:
+      "Campus classics with a modern twist. Wool, leather and satin varsity jackets to layer all season.",
+    banner: getImage("varsity-jackets-banner", 1440, 600),
+    products: makeProducts("varsity-jackets", [
+      [1, "Northline", "Classic Wool Varsity Jacket", 5999, 8999, "men", 4.5, 1900, "Bestseller"],
+      [2, "Northline", "Leather Sleeve Varsity", 7499, 10999, "men", 4.6, 840, "New"],
+      [3, "Hollis Row", "Colour-Block Varsity", 4999, 7499, "men", 4.4, 1200],
+      [4, "Hollis Row", "Reversible Varsity Bomber", 5499, 7999, "men", 4.3, 620],
+      [5, "Aster & Co", "Cropped Varsity Jacket", 4799, 6999, "women", 4.5, 1500, "Bestseller"],
+      [6, "Aster & Co", "Satin Varsity Bomber", 5299, 7699, "women", 4.4, 780, "New"],
+      [7, "Hollis Row", "Oversized Letterman Jacket", 5899, 8499, "women", 4.6, 910],
+      [8, "Aster & Co", "Corduroy Varsity Jacket", 4999, 7299, "women", 4.3, 540],
+    ]),
+  },
+  {
+    slug: "kids",
+    title: "Kids Clothes",
+    description:
+      "Soft, comfy and ready to play. Everyday outfits and party favourites for boys and girls.",
+    banner: getImage("kids-banner", 1440, 600),
+    products: makeProducts("kids", [
+      [1, "Little Oak", "Printed Cotton Tee", 699, 1199, "boys", 4.4, 2200, "Bestseller"],
+      [2, "Little Oak", "Stretch Denim Jeans", 1199, 1899, "boys", 4.3, 1100],
+      [3, "Tiny Trails", "Hooded Sweatshirt", 1299, 1999, "boys", 4.5, 960, "New"],
+      [4, "Tiny Trails", "Jogger Track Pants", 899, 1499, "boys", 4.2, 1500],
+      [5, "Mini Meadow", "Floral Party Frock", 1499, 2499, "girls", 4.6, 1700, "Bestseller"],
+      [6, "Mini Meadow", "Cotton Skater Dress", 1099, 1799, "girls", 4.4, 1300],
+      [7, "Little Oak", "Ruffle Sleeve Top", 799, 1299, "girls", 4.3, 890, "New"],
+      [8, "Mini Meadow", "Fleece Hoodie Set", 1699, 2699, "girls", 4.5, 740],
     ]),
   },
 ];
