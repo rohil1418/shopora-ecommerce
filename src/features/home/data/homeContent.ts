@@ -13,7 +13,7 @@ export const heroPrimary: HeroBannerProps = {
   title: "Only In The City",
   description: "Iconic style, rewritten for the new season.",
   ctaLabel: "Shop the Campaign",
-  href: "#",
+  href: "/collections/fall-2026",
   image: heroImage,
 };
 
