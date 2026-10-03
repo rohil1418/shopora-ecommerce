@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { fadeUp, staggerContainer } from "@/shared/animations/variants";
 import type { CollectionItem, SectionHeadingContent } from "../types";
 import SectionHeading from "./SectionHeading";
+
+const MotionLink = motion.create(Link);
 
 type CollectionGridProps = {
   heading: SectionHeadingContent;
@@ -22,10 +25,10 @@ export default function CollectionGrid({ heading, items }: CollectionGridProps) 
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {items.map((item) => (
-          <motion.a
+          <MotionLink
             key={item.title}
             variants={fadeUp}
-            href={item.href}
+            to={item.href}
             className="group relative block overflow-hidden"
           >
             <img
@@ -43,7 +46,7 @@ export default function CollectionGrid({ heading, items }: CollectionGridProps) 
                 <ArrowRight size={14} />
               </span>
             </div>
-          </motion.a>
+          </MotionLink>
         ))}
       </div>
     </motion.section>
