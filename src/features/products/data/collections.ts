@@ -163,9 +163,9 @@ const collections: Collection[] = [
     products: makeProducts("winter", [
       [1, "Northline", "Puffer Down Jacket", 5999, 8999, "men", 4.5, 2800, "Bestseller"],
       [2, "Oakwell", "Chunky Cable-Knit Sweater", 2999, 4499, "men", 4.4, 1900],
-      [3, "Aster & Co", "Fleece Zip Hoodie", 2499, 3799, "men", 4.3, 3100],
-      [4, "Northline", "Wool Blend Overcoat", 8499, 12499, "men", 4.6, 520, "New"],
-      [5, "Aster & Co", "Longline Wool Coat", 7999, 11999, "women", 4.6, 640, "New"],
+      [3, "Flygo", "Fleece Zip Hoodie", 2499, 3799, "men", 4.3, 3100],
+      [4, "YLSDY", "Wool Blend Overcoat", 8499, 12499, "men", 4.6, 520, "New"],
+      [5, "M&S", "Longline Wool Coat", 7999, 11999, "women", 4.6, 640, "New"],
       [6, "Oakwell", "Turtleneck Knit Sweater", 2799, 4199, "women", 4.5, 2200, "Bestseller"],
       [7, "Kora", "Quilted Puffer Jacket", 5499, 7999, "women", 4.4, 1700],
       [8, "Kora", "Cosy Fleece Sweatshirt", 2299, 3499, "women", 4.3, 1400],
