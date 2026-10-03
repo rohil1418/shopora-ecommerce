@@ -23,10 +23,10 @@ export const collectionsHeading: SectionHeadingContent = {
 };
 
 export const collections: CollectionItem[] = [
-  { title: "Classic Polos", image: getImage("collection-1", 600, 800), href: "#" },
-  { title: "Varsity Jackets", image: getImage("collection-2", 600, 800), href: "#" },
-  { title: "Perfumes", image: getImage("collection-3", 600, 800), href: "#" },
-  { title: "Beauty", image: getImage("collection-4", 600, 800), href: "#" },
+  { title: "Perfume", image: getImage("collection-1", 600, 800), href: "/collections/perfume" },
+  { title: "Beauty", image: getImage("collection-2", 600, 800), href: "/collections/beauty" },
+  { title: "Varsity Jackets", image: getImage("collection-3", 600, 800), href: "/collections/varsity-jackets" },
+  { title: "Kids Clothes", image: getImage("collection-4", 600, 800), href: "/collections/kids" },
 ];
 
 export const heroSecondary: HeroBannerProps = {
