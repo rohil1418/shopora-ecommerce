@@ -28,7 +28,7 @@ export const FOOTER_GROUPS: FooterGroup[] = [
     title: "Shop",
     links: [link("Men"), link("Women"), link("Kids"), link("Beauty"), link("Perfume")],
   },
-    {
+  {
     title: "Help",
     links: [
       pageLink("FAQs"),
@@ -78,16 +78,16 @@ export const FOOTER_GROUPS: FooterGroup[] = [
       },
     ],
   },
-    {
+  {
     title: "Account",
     links: [
       panelLink("Login / Sign Up", "auth"),
       panelLink("My Wishlist", "wishlist"),
-      panelLink("Shopping Bag", "cart"),
+      link("Shopping Bag", "/bag"),
       link("Contact Us"),
     ],
   },
-   {
+  {
     title: "Company",
     links: [
       pageLink("About Us"),
@@ -96,7 +96,7 @@ export const FOOTER_GROUPS: FooterGroup[] = [
       pageLink("Store Locator"),
     ],
   },
-   {
+  {
     title: "Legal",
     links: [
       pageLink("Terms & Conditions"),
