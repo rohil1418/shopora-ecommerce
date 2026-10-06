@@ -29,7 +29,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.5, delay: index * 0.06, ease: EASE }}
+      transition={{ duration: 0.5, delay: Math.min(index, 8) * 0.06, ease: EASE }}
       className="group"
     >
       <div className="relative overflow-hidden bg-gray-100">
