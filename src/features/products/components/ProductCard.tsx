@@ -1,23 +1,19 @@
-import { useState } from "react";
 import { motion } from "motion/react";
 import { Heart, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { EASE } from "@/shared/animations/variants";
+import { useWishlist } from "@/shared/store";
+import { formatCount, formatPrice } from "@/shared/utils/format";
+import { getProductUid } from "../data/collections";
 import type { Product } from "../types";
-
-const formatPrice = (price: number): string =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(price);
-
-const formatCount = (count: number): string =>
-  count >= 1000 ? `${(count / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(count);
 
 type ProductCardProps = { product: Product; index: number };
 
 export default function ProductCard({ product, index }: ProductCardProps) {
-  const [liked, setLiked] = useState<boolean>(false);
+  const { has, toggle } = useWishlist();
+  const uid = getProductUid(product);
+  const liked = has(uid);
+  const productPath = `/product/${uid}`;
 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -33,14 +29,16 @@ export default function ProductCard({ product, index }: ProductCardProps) {
       className="group"
     >
       <div className="relative overflow-hidden bg-gray-100">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="aspect-[3/4] w-full object-cover transition duration-700 ease-out group-hover:scale-110"
-        />
+        <Link to={productPath} className="block">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="aspect-[3/4] w-full object-cover transition duration-700 ease-out group-hover:scale-110"
+          />
+        </Link>
 
         {product.tag && (
-          <span className="absolute left-3 top-3 bg-red-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+          <span className="pointer-events-none absolute left-3 top-3 bg-red-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
             {product.tag}
           </span>
         )}
@@ -49,7 +47,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
           type="button"
           aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={liked}
-          onClick={() => setLiked(!liked)}
+          onClick={() => toggle(uid)}
           whileTap={{ scale: 0.85 }}
           className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow transition-colors hover:bg-white"
         >
@@ -66,7 +64,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
         </motion.button>
 
         {product.rating !== undefined && (
-          <span className="absolute bottom-3 left-3 flex items-center gap-1 rounded bg-white/95 px-2 py-1 text-xs font-semibold text-gray-800 shadow">
+          <span className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1 rounded bg-white/95 px-2 py-1 text-xs font-semibold text-gray-800 shadow">
             <Star size={12} className="fill-green-600 text-green-600" />
             {product.rating.toFixed(1)}
             {product.reviews !== undefined && (
@@ -78,13 +76,11 @@ export default function ProductCard({ product, index }: ProductCardProps) {
         )}
       </div>
 
-      <div className="mt-3">
+      <Link to={productPath} className="mt-3 block">
         <p className="text-xs font-bold uppercase tracking-widest text-[#0a1f44]">
           {product.brand ?? product.category}
         </p>
-        <h3 className="mt-1 truncate text-sm text-gray-600 md:text-base">
-          {product.title}
-        </h3>
+        <h3 className="mt-1 truncate text-sm text-gray-600 md:text-base">{product.title}</h3>
         <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-sm">
           <span className="font-bold text-gray-900">{formatPrice(product.price)}</span>
           {product.originalPrice && (
@@ -96,7 +92,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
             <span className="text-xs font-semibold text-red-600">({discount}% OFF)</span>
           )}
         </p>
-      </div>
+      </Link>
     </motion.article>
   );
 }
