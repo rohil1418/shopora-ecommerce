@@ -1,1 +1,1 @@
-export { default as CartDrawer } from "./components/CartDrawer";
+export { default as BagView } from "./components/BagView";
