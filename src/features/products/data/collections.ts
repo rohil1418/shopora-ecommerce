@@ -303,3 +303,9 @@ const featuredCollections: Collection[] = [
 
 export const getCollection = (slug: string | undefined): Collection | undefined =>
   [...collections, ...featuredCollections].find((collection) => collection.slug === slug);
+
+export const getProductUid = (product: Pick<Product, "collection" | "id">): string =>
+  `${product.collection}-${product.id}`;
+
+export const getProduct = (uid: string | undefined): Product | undefined =>
+  allProducts.find((product) => getProductUid(product) === uid);
