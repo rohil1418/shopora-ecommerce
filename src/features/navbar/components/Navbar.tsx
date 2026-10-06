@@ -6,8 +6,9 @@ import { usePanels, type PanelName } from "@/shared/panels";
 import { NAV_ITEMS } from "../constants";
 import type { NavItem } from "../types";
 import MegaMenu from "./MegaMenu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/shared/components/Logo";
+import { useCart, useWishlist } from "@/shared/store";
 
 function CountBadge({ count }: { count: number }) {
   if (count === 0) return null;
@@ -45,8 +46,9 @@ export default function Navbar() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { openPanel } = usePanels();
 
-  const cartCount = 0;
-  const wishlistCount = 0;
+  const navigate = useNavigate();
+  const { count: cartCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
 
   const openMenu = (item: NavItem) =>
     setActiveMenu(item.columns ? item.label : null);
@@ -121,7 +123,14 @@ export default function Navbar() {
             <Heart size={20} />
             <CountBadge count={wishlistCount} />
           </IconButton>
-          <IconButton label="Shopping bag" onClick={() => handleOpenPanel("cart")}>
+          <IconButton
+            label="Shopping bag"
+            onClick={() => {
+              setActiveMenu(null);
+              setIsOpen(false);
+              navigate("/bag");
+            }}
+          >
             <ShoppingBag size={20} />
             <CountBadge count={cartCount} />
           </IconButton>
