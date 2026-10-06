@@ -28,6 +28,7 @@ type Row = [
 const makeProducts = (prefix: string, rows: Row[]): Product[] =>
   rows.map(([id, brand, title, price, originalPrice, category, rating, reviews, tag]) => ({
     id,
+    collection: prefix,
     brand,
     title,
     price,
@@ -258,10 +259,47 @@ const collections: Collection[] = [
       [5, "Aster & Co", "Belted Wool Coat", 8299, 11999, "women", 4.6, 540, "New"],
       [6, "Aster & Co", "Ribbed Knit Midi Dress", 3599, 5199, "women", 4.4, 860],
       [7, "Velora", "Slim Ankle Boots", 4299, 6299, "women", 4.5, 1100, "Bestseller"],
-      [8, "Kora", "Structured City Tote", 3499, 5199, "accessories", 4.4, 950],
+[8, "Kora", "!!!!111", 3499, 5199, "accessories", 4.4, 950],
     ]),
   },
 ];
 
+const allProducts: Product[] = collections.flatMap((collection) => collection.products);
+
+const byPopularity = (a: Product, b: Product): number =>
+  (b.reviews ?? 0) - (a.reviews ?? 0);
+
+const isAccessory = (product: Product): boolean =>
+  product.category === "accessories" || product.collection === "bags";
+
+const featuredCollections: Collection[] = [
+  {
+    slug: "new",
+    title: "New Arrivals",
+    description:
+      "Fresh drops from every category. Be the first to wear what is new this season.",
+    banner: getImage("new-banner", 1440, 600),
+    products: allProducts.filter((product) => product.tag === "New"),
+  },
+  {
+    slug: "bestsellers",
+    title: "Bestsellers",
+    description:
+      "The pieces everyone keeps coming back for. Our most loved styles, ranked by popularity.",
+    banner: getImage("bestsellers-banner", 1440, 600),
+    products: allProducts
+      .filter((product) => product.tag === "Bestseller")
+      .sort(byPopularity),
+  },
+  {
+    slug: "accessories",
+    title: "Accessories",
+    description:
+      "Bags, belts, caps and more. The finishing touches that complete every look.",
+    banner: getImage("accessories-banner", 1440, 600),
+    products: allProducts.filter(isAccessory),
+  },
+];
+
 export const getCollection = (slug: string | undefined): Collection | undefined =>
-  collections.find((collection) => collection.slug === slug);
+  [...collections, ...featuredCollections].find((collection) => collection.slug === slug);
