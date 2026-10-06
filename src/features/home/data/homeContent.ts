@@ -1,12 +1,14 @@
 import heroImage from "../assets/hero-1.jpg";
 import type { HeroBannerProps } from "../components/HeroBanner";
+import { getImage } from "./images";
+import { getCollection } from "@/features/products";
 import type {
   CategoryItem,
   CollectionItem,
   FeatureItem,
+  HighlightItem,
   SectionHeadingContent,
 } from "../types";
-import { getImage } from "./images";
 
 export const heroPrimary: HeroBannerProps = {
   eyebrow: "Fall 2026",
@@ -78,5 +80,39 @@ export const features: FeatureItem[] = [
     ctaLabel: "Shop Now",
     image: getImage("feature-3", 800, 1000),
     href: "/collections/sport",
+  },
+];
+
+const countOf = (slug: string): number => getCollection(slug)?.products.length ?? 0;
+
+export const highlightsHeading: SectionHeadingContent = {
+  eyebrow: "Featured",
+  title: "Shop the Edit",
+};
+
+export const highlights: HighlightItem[] = [
+  {
+    title: "New Arrivals",
+    subtitle: "Fresh styles across every category",
+    badge: "Just Dropped",
+    image: getImage("featured-new", 800, 500),
+    href: "/collections/new",
+    count: countOf("new"),
+  },
+  {
+    title: "Bestsellers",
+    subtitle: "The pieces everyone is buying",
+    badge: "Most Loved",
+    image: getImage("featured-bestsellers", 800, 500),
+    href: "/collections/bestsellers",
+    count: countOf("bestsellers"),
+  },
+  {
+    title: "Accessories",
+    subtitle: "Bags, belts, caps and more",
+    badge: "Finishing Touch",
+    image: getImage("featured-accessories", 800, 500),
+    href: "/collections/accessories",
+    count: countOf("accessories"),
   },
 ];
