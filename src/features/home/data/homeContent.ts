@@ -109,7 +109,7 @@ export const highlights: HighlightItem[] = [
   },
   {
     title: "Accessories",
-    subtitle: "Bags, belts, caps and more",
+    subtitle: "Bags, bottles, caps and more",
     badge: "Finishing Touch",
     image: getImage("featured-accessories", 800, 500),
     href: "/collections/accessories",
