@@ -208,7 +208,6 @@ git clone https://github.com/rohil1418/shopora-ecommerce.git
 cd shopora-ecommerce
 npm install
 ```
-
 ### Run locally
 
 ```bash
