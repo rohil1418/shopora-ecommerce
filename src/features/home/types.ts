@@ -17,3 +17,12 @@ export type FeatureItem = {
   image: string;
   href: string;
 };
+
+export type HighlightItem = {
+  title: string;
+  subtitle: string;
+  badge: string;
+  image: string;
+  href: string;
+  count: number;
+};
