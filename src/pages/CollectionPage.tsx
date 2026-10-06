@@ -86,7 +86,7 @@ function CollectionView({ collection, initialFilter }: CollectionViewProps) {
         >
           <AnimatePresence mode="popLayout">
             {visibleProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
+              <ProductCard key={`${product.collection}-${product.id}`} product={product} index={index} />
             ))}
           </AnimatePresence>
         </motion.div>
