@@ -9,7 +9,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ProductPage from "../pages/ProductPage";
 import ScrollToTop from "../shared/components/ScrollToTop";
 import { PanelProvider } from "../shared/panels";
-import { CartProvider, WishlistProvider } from "../shared/store";
+import { AuthProvider, CartProvider, WishlistProvider } from "../shared/store";
 import PanelHost from "./PanelHost";
 
 export default function App() {
@@ -17,22 +17,24 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <ScrollToTop />
-        <CartProvider>
-          <WishlistProvider>
-            <PanelProvider>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/collections/:slug" element={<CollectionPage />} />
-                <Route path="/product/:uid" element={<ProductPage />} />
-                <Route path="/bag" element={<BagPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              <Footer />
-              <PanelHost />
-            </PanelProvider>
-          </WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <PanelProvider>
+                <Navbar />
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/collections/:slug" element={<CollectionPage />} />
+                  <Route path="/product/:uid" element={<ProductPage />} />
+                  <Route path="/bag" element={<BagPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+                <Footer />
+                <PanelHost />
+              </PanelProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </BrowserRouter>
     </MotionConfig>
   );
