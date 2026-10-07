@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { EASE } from "@/shared/animations/variants";
 import { usePanels, type PanelName } from "@/shared/panels";
 import { NAV_ITEMS } from "../constants";
@@ -9,6 +9,7 @@ import MegaMenu from "./MegaMenu";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/shared/components/Logo";
 import { useCart, useWishlist } from "@/shared/store";
+import { AccountButton } from "@/features/auth";
 
 function CountBadge({ count }: { count: number }) {
   if (count === 0) return null;
@@ -116,9 +117,7 @@ export default function Navbar() {
           <IconButton label="Search" onClick={() => handleOpenPanel("search")}>
             <Search size={20} />
           </IconButton>
-          <IconButton label="Login or Sign up" onClick={() => handleOpenPanel("auth")}>
-            <User size={20} />
-          </IconButton>
+          <AccountButton />
           <IconButton label="Wishlist" onClick={() => handleOpenPanel("wishlist")}>
             <Heart size={20} />
             <CountBadge count={wishlistCount} />
