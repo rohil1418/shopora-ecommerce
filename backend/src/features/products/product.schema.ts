@@ -1,59 +1,56 @@
 import { z } from "zod";
+import {
+  PRODUCT_CATEGORIES,
+  PRODUCT_TAGS,
+  SORT_OPTIONS,
+  STATUS_FILTERS,
+} from "./product.constants";
 
-const imageSchema = z.object({
-  url: z.string().url(),
-  publicId: z.string().min(1),
+const sizeSchema = z.object({
+  label: z.string().trim().min(1, "Size label is required").max(20),
+  stock: z.coerce.number().int("Stock must be a whole number").min(0, "Stock cannot be negative"),
 });
 
-const productFields = {
-  name: z.string().trim().min(2).max(150),
-  slug: z
-    .string()
-    .trim()
-    .min(2)
-    .max(180)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().trim().min(5).max(5000),
-  price: z.coerce.number().finite().min(0),
-  compareAtPrice: z.coerce.number().finite().min(0).optional(),
-  category: z.string().trim().min(2).max(80),
-  images: z.array(imageSchema).min(1).max(10),
-  sizes: z.array(z.string().trim().min(1).max(30)).max(30).default([]),
-  colors: z.array(z.string().trim().min(1).max(50)).max(30).default([]),
-  stock: z.coerce.number().int().min(0),
-  featured: z.boolean().default(false),
-  isActive: z.boolean().default(true),
-};
-
-export const createProductSchema = z.object(productFields);
-
-export const updateProductSchema = z
+export const productSchema = z
   .object({
-    name: productFields.name.optional(),
-    slug: productFields.slug.optional(),
-    description: productFields.description.optional(),
-    price: productFields.price.optional(),
-    compareAtPrice: productFields.compareAtPrice,
-    category: productFields.category.optional(),
-    images: productFields.images.optional(),
-    sizes: productFields.sizes.optional(),
-    colors: productFields.colors.optional(),
-    stock: productFields.stock.optional(),
-    featured: productFields.featured.optional(),
-    isActive: productFields.isActive.optional(),
+    sku: z.string().trim().min(2).max(40).optional(),
+    title: z.string().trim().min(2, "Title must be at least 2 characters").max(120),
+    brand: z.string().trim().min(1, "Brand is required").max(60),
+    description: z.string().trim().max(2000).default(""),
+    price: z.coerce.number().int("Price must be a whole number").positive("Price must be greater than 0"),
+    originalPrice: z.coerce.number().int().positive().optional(),
+    category: z.enum(PRODUCT_CATEGORIES),
+    collection: z.string().trim().toLowerCase().min(1, "Collection is required"),
+    images: z.array(z.string().trim().min(1)).min(1, "Add at least one image"),
+    sizes: z.array(sizeSchema).default([]),
+    stock: z.coerce.number().int().min(0).default(0),
+    tag: z.enum(PRODUCT_TAGS).optional(),
+    rating: z.coerce.number().min(0).max(5).optional(),
+    reviewsCount: z.coerce.number().int().min(0).default(0),
+    isActive: z.boolean().default(true),
   })
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field is required",
+  .refine((data) => data.originalPrice === undefined || data.originalPrice >= data.price, {
+    message: "MRP must be greater than or equal to the price",
+    path: ["originalPrice"],
   });
 
+export const statusSchema = z.object({ isActive: z.boolean() });
+
 export const productQuerySchema = z.object({
+  collection: z.string().trim().toLowerCase().optional(),
+  category: z.enum(PRODUCT_CATEGORIES).optional(),
+  tag: z.enum(PRODUCT_TAGS).optional(),
+  search: z.string().trim().max(60).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+  sort: z.enum(SORT_OPTIONS).optional(),
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(12),
-  category: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  featured: z.enum(["true", "false"]).optional(),
-  sort: z.enum(["newest", "price-asc", "price-desc"]).default("newest"),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
-export type CreateProductInput = z.infer<typeof createProductSchema>;
-export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export const adminProductQuerySchema = productQuerySchema.extend({
+  status: z.enum(STATUS_FILTERS).default("all"),
+});
+
+export type ProductInput = z.infer<typeof productSchema>;
+export type ProductQuery = z.infer<typeof productQuerySchema>;
