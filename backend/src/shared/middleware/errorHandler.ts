@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
 import mongoose from "mongoose";
+import multer from "multer";
 import { ZodError } from "zod";
 import { env } from "../../config/env";
 import { AppError } from "../errors/AppError";
@@ -19,6 +20,16 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
         field: issue.path.join("."),
         message: issue.message,
       })),
+    });
+    return;
+  }
+
+  if (err instanceof multer.MulterError) {
+    const tooLarge = err.code === "LIMIT_FILE_SIZE";
+    res.status(tooLarge ? 413 : 400).json({
+      message: tooLarge
+        ? "Image is too large (maximum 5 MB)"
+        : "Invalid upload. Send up to 5 images in the 'images' field",
     });
     return;
   }
