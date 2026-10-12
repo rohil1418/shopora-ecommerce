@@ -1,112 +1,66 @@
 import { Schema, model } from "mongoose";
+import {
+  PRODUCT_CATEGORIES,
+  PRODUCT_TAGS,
+  type ProductCategory,
+  type ProductTag,
+} from "./product.constants";
 
-export interface IProductImage {
-  url: string;
-  publicId: string;
+export interface ISize {
+  label: string;
+  stock: number;
 }
 
 export interface IProduct {
-  name: string;
-  slug: string;
+  sku: string;
+  title: string;
+  brand: string;
   description: string;
   price: number;
-  compareAtPrice?: number;
-  category: string;
-  images: IProductImage[];
-  sizes: string[];
-  colors: string[];
+  originalPrice?: number;
+  category: ProductCategory;
+  collectionSlug: string;
+  images: string[];
+  sizes: ISize[];
   stock: number;
-  featured: boolean;
+  tag?: ProductTag;
+  rating?: number;
+  reviewsCount: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const productImageSchema = new Schema<IProductImage>(
+const sizeSchema = new Schema<ISize>(
   {
-    url: { type: String, required: true },
-    publicId: { type: String, required: true },
+    label: { type: String, required: true, trim: true },
+    stock: { type: Number, required: true, min: 0, default: 0 },
   },
   { _id: false }
 );
 
 const productSchema = new Schema<IProduct>(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 150,
-    },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 5000,
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    compareAtPrice: {
-      type: Number,
-      min: 0,
-    },
-    category: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true,
-    },
-    images: {
-      type: [productImageSchema],
-      required: true,
-      validate: {
-        validator: (images: IProductImage[]) => images.length > 0,
-        message: "At least one product image is required",
-      },
-    },
-    sizes: {
-      type: [String],
-      default: [],
-    },
-    colors: {
-      type: [String],
-      default: [],
-    },
-    stock: {
-      type: Number,
-      required: true,
-      min: 0,
-      default: 0,
-      validate: {
-        validator: Number.isInteger,
-        message: "Stock must be a whole number",
-      },
-    },
-    featured: {
-      type: Boolean,
-      default: false,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    sku: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    title: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
+    description: { type: String, default: "" },
+    price: { type: Number, required: true, min: 1 },
+    originalPrice: { type: Number, min: 1 },
+    category: { type: String, enum: [...PRODUCT_CATEGORIES], required: true },
+    collectionSlug: { type: String, required: true, lowercase: true, trim: true, index: true },
+    images: { type: [String], default: [] },
+    sizes: { type: [sizeSchema], default: [] },
+    stock: { type: Number, default: 0, min: 0 },
+    tag: { type: String, enum: [...PRODUCT_TAGS] },
+    rating: { type: Number, min: 0, max: 5 },
+    reviewsCount: { type: Number, default: 0, min: 0 },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-productSchema.index({ name: "text", description: "text" });
+productSchema.index({ isActive: 1, category: 1 });
+productSchema.index({ tag: 1 });
 
-export const ProductModel = model<IProduct>(
-  "Product",
-  productSchema
-);
+export const ProductModel = model<IProduct>("Product", productSchema);
