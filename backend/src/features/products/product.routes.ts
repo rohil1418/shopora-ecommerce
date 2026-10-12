@@ -1,56 +1,39 @@
 import { Router } from "express";
 import { asyncHandler } from "../../shared/middleware/asyncHandler";
 import { validateBody } from "../../shared/middleware/validate";
-import { uploadImage } from "../../shared/middleware/uploadImage";
 import { requireAdmin } from "../auth";
 import {
+  adminGetProductHandler,
+  adminListProductsHandler,
   createProductHandler,
   deleteProductHandler,
-  getAdminProducts,
-  getProduct,
-  getProducts,
+  getCollectionHandler,
+  getProductHandler,
+  listCollectionsHandler,
+  listProductsHandler,
+  setProductStatusHandler,
   updateProductHandler,
-  uploadProductImage,
 } from "./product.controller";
-import {
-  createProductSchema,
-  updateProductSchema,
-} from "./product.schema";
+import { productSchema, statusSchema } from "./product.schema";
 
-export const productRouter = Router();
+export const catalogRouter = Router();
 
-productRouter.get("/", asyncHandler(getProducts));
-productRouter.get("/:id", asyncHandler(getProduct));
+catalogRouter.get("/collections", asyncHandler(listCollectionsHandler));
+catalogRouter.get("/collections/:slug", asyncHandler(getCollectionHandler));
+catalogRouter.get("/products", asyncHandler(listProductsHandler));
+catalogRouter.get("/products/:id", asyncHandler(getProductHandler));
 
-productRouter.get(
-  "/admin/all",
-  ...requireAdmin,
-  asyncHandler(getAdminProducts)
+export const adminCatalogRouter = Router();
+
+adminCatalogRouter.use(requireAdmin);
+
+adminCatalogRouter.get("/products", asyncHandler(adminListProductsHandler));
+adminCatalogRouter.get("/products/:id", asyncHandler(adminGetProductHandler));
+adminCatalogRouter.post("/products", validateBody(productSchema), asyncHandler(createProductHandler));
+adminCatalogRouter.put("/products/:id", validateBody(productSchema), asyncHandler(updateProductHandler));
+adminCatalogRouter.patch(
+  "/products/:id/status",
+  validateBody(statusSchema),
+  asyncHandler(setProductStatusHandler)
 );
-
-productRouter.post(
-  "/upload-image",
-  ...requireAdmin,
-  uploadImage.single("image"),
-  asyncHandler(uploadProductImage)
-);
-
-productRouter.post(
-  "/",
-  ...requireAdmin,
-  validateBody(createProductSchema),
-  asyncHandler(createProductHandler)
-);
-
-productRouter.patch(
-  "/:id",
-  ...requireAdmin,
-  validateBody(updateProductSchema),
-  asyncHandler(updateProductHandler)
-);
-
-productRouter.delete(
-  "/:id",
-  ...requireAdmin,
-  asyncHandler(deleteProductHandler)
-);
+adminCatalogRouter.delete("/products/:id", asyncHandler(deleteProductHandler));
