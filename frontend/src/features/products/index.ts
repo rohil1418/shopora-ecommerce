@@ -4,3 +4,5 @@ export * from "./data/collections";
 export type { Collection, Product, ProductCategory, ProductFilter } from "./types";
 export { default as ProductDetail } from "./components/ProductDetail";
 export * from "./data/sizes";
+export * from "./api";
+export { useCollection } from "@/shared/hooks/useCollection";
