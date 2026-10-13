@@ -7,7 +7,7 @@ export function uploadToCloudinary(
 ): Promise<{ url: string; publicId: string }> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "image" },
+      { folder, resource_type: "image", timeout: 60000 },
       (error, result?: UploadApiResponse) => {
         if (error || !result) return reject(error ?? new Error("Upload failed"));
         resolve({ url: result.secure_url, publicId: result.public_id });
