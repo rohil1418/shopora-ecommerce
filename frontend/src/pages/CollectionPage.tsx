@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -7,42 +7,72 @@ import {
   PRODUCT_FILTERS,
   ProductCard,
   getCollection,
-  type Collection,
+  useCollection,
   type ProductFilter,
 } from "@/features/products";
 import { EASE, fadeUp, staggerContainer } from "@/shared/animations/variants";
 import NotFoundPage from "./NotFoundPage";
 
-type CollectionViewProps = {
-  collection: Collection;
-  initialFilter: ProductFilter;
-};
+function CollectionSkeleton() {
+  return (
+    <main>
+      <div className="h-[42vh] min-h-[320px] animate-pulse bg-gray-200" />
+      <div className="mx-auto mt-12 grid max-w-7xl grid-cols-2 gap-x-3 gap-y-8 px-4 md:grid-cols-4 md:gap-x-5">
+        {Array.from({ length: 8 }, (_, index) => (
+          <div key={index} className="aspect-[3/4] animate-pulse bg-gray-100" />
+        ))}
+      </div>
+    </main>
+  );
+}
 
-function CollectionView({ collection, initialFilter }: CollectionViewProps) {
+function CollectionView({ slug, initialFilter }: { slug: string; initialFilter: ProductFilter }) {
   const [filter, setFilter] = useState<ProductFilter>(initialFilter);
-
-  const filterOptions = PRODUCT_FILTERS.filter(
-    (option) =>
-      option.value === "all" ||
-      collection.products.some((product) => product.category === option.value)
+  const { data, status, error, isFetching, loadingMore, loadMore, reload } = useCollection(
+    slug,
+    filter
   );
 
-  const visibleProducts =
-    filter === "all"
-      ? collection.products
-      : collection.products.filter((product) => product.category === filter);
+  useEffect(() => {
+    if (data && filter !== "all" && !data.filters.includes(filter)) setFilter("all");
+  }, [data, filter]);
+
+  if (status === "notfound") return <NotFoundPage />;
+
+  if (status === "error") {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-24 text-center">
+        <p className="text-gray-600">{error || "Could not load this collection."}</p>
+        <button
+          type="button"
+          onClick={reload}
+          className="mt-6 bg-[#0a1f44] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white"
+        >
+          Try again
+        </button>
+      </main>
+    );
+  }
+
+  if (!data) return <CollectionSkeleton />;
+
+  const { collection, products, total } = data;
+  const banner = collection.banner || getCollection(slug)?.banner || "";
+  const filterOptions = PRODUCT_FILTERS.filter((option) => data.filters.includes(option.value));
 
   return (
     <main>
-      <section className="relative h-[42vh] min-h-[320px] overflow-hidden">
-        <motion.img
-          src={collection.banner}
-          alt=""
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: EASE }}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+      <section className="relative h-[42vh] min-h-[320px] overflow-hidden bg-[#0a1f44]">
+        {banner && (
+          <motion.img
+            src={banner}
+            alt=""
+            initial={{ scale: 1.15 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2, ease: EASE }}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
 
         <motion.div
@@ -76,46 +106,57 @@ function CollectionView({ collection, initialFilter }: CollectionViewProps) {
       <section className="mx-auto max-w-7xl px-4 py-12">
         <CategoryFilter options={filterOptions} value={filter} onChange={setFilter} />
 
-        <p className="mt-6 text-center text-sm text-gray-500">
-          {visibleProducts.length} items
-        </p>
+        <p className="mt-6 text-center text-sm text-gray-500">{total} items</p>
+
+        {products.length === 0 && !isFetching && (
+          <p className="mt-12 text-center text-gray-500">No products here yet.</p>
+        )}
 
         <motion.div
           layout
-          className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5"
+          className={`mt-8 grid grid-cols-2 gap-x-3 gap-y-8 transition-opacity md:grid-cols-4 md:gap-x-5 ${
+            isFetching ? "opacity-60" : ""
+          }`}
         >
           <AnimatePresence mode="popLayout">
-            {visibleProducts.map((product, index) => (
-              <ProductCard key={`${product.collection}-${product.id}`} product={product} index={index} />
+            {products.map((product, index) => (
+              <ProductCard
+                key={`${product.collection}-${product.id}`}
+                product={product}
+                index={index}
+              />
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {data.page < data.totalPages && (
+          <div className="mt-12 text-center">
+            <button
+              type="button"
+              onClick={() => void loadMore()}
+              disabled={loadingMore}
+              className="border border-[#0a1f44] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-[#0a1f44] transition hover:bg-[#0a1f44] hover:text-white disabled:opacity-60"
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </button>
+          </div>
+        )}
       </section>
     </main>
   );
 }
 
-const isValidFilter = (value: string | null, collection: Collection): value is ProductFilter =>
-  PRODUCT_FILTERS.some((option) => option.value === value) &&
-  (value === "all" || collection.products.some((product) => product.category === value));
+const isKnownFilter = (value: string | null): value is ProductFilter =>
+  PRODUCT_FILTERS.some((option) => option.value === value);
 
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
-  const collection = getCollection(slug);
 
-  if (!collection) return <NotFoundPage />;
+  if (!slug) return <NotFoundPage />;
 
   const requested = searchParams.get("filter");
-  const initialFilter: ProductFilter = isValidFilter(requested, collection)
-    ? requested
-    : "all";
+  const initialFilter: ProductFilter = isKnownFilter(requested) ? requested : "all";
 
-  return (
-    <CollectionView
-      key={`${collection.slug}-${initialFilter}`}
-      collection={collection}
-      initialFilter={initialFilter}
-    />
-  );
+  return <CollectionView key={`${slug}-${initialFilter}`} slug={slug} initialFilter={initialFilter} />;
 }
