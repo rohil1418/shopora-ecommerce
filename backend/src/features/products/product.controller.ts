@@ -6,10 +6,12 @@ import {
 } from "./product.schema";
 import {
   createProduct,
-  deleteProduct,
   getProductById,
   listProducts,
+  purgeProduct,
+  restoreProduct,
   setProductActive,
+  trashProduct,
   updateProduct,
 } from "./product.service";
 
@@ -55,6 +57,15 @@ export async function setProductStatusHandler(req: Request, res: Response): Prom
 }
 
 export async function deleteProductHandler(req: Request, res: Response): Promise<void> {
-  await deleteProduct(param(req, "id"));
-  res.json({ message: "Product deleted" });
+  await trashProduct(param(req, "id"));
+  res.json({ message: "Product moved to trash" });
+}
+
+export async function restoreProductHandler(req: Request, res: Response): Promise<void> {
+  res.json({ product: await restoreProduct(param(req, "id")) });
+}
+
+export async function purgeProductHandler(req: Request, res: Response): Promise<void> {
+  await purgeProduct(param(req, "id"));
+  res.json({ message: "Product permanently deleted" });
 }
