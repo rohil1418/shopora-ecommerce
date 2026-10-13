@@ -6,7 +6,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed:catalog": "tsx src/scripts/seedCatalog.ts"
+    "seed:catalog": "tsx src/scripts/seedCatalog.ts",
+    "seed:images": "tsx src/scripts/seedImages.ts"
   },
   "keywords": [],
   "author": "",
