@@ -15,6 +15,10 @@ import {
   updateProductHandler,
 } from "./product.controller";
 import { productSchema, statusSchema } from "./product.schema";
+import {
+  restoreProductHandler,
+  purgeProductHandler,
+} from "./product.controller";
 
 export const catalogRouter = Router();
 
@@ -28,6 +32,8 @@ export const adminCatalogRouter = Router();
 adminCatalogRouter.use(requireAdmin);
 
 adminCatalogRouter.get("/products", asyncHandler(adminListProductsHandler));
+adminCatalogRouter.post("/products/:id/restore", asyncHandler(restoreProductHandler));
+adminCatalogRouter.delete("/products/:id/permanent", asyncHandler(purgeProductHandler));
 adminCatalogRouter.get("/products/:id", asyncHandler(adminGetProductHandler));
 adminCatalogRouter.post("/products", validateBody(productSchema), asyncHandler(createProductHandler));
 adminCatalogRouter.put("/products/:id", validateBody(productSchema), asyncHandler(updateProductHandler));
