@@ -27,6 +27,7 @@ export interface IProduct {
   rating?: number;
   reviewsCount: number;
   isActive: boolean;
+  deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,11 +57,13 @@ const productSchema = new Schema<IProduct>(
     rating: { type: Number, min: 0, max: 5 },
     reviewsCount: { type: Number, default: 0, min: 0 },
     isActive: { type: Boolean, default: true },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
 productSchema.index({ isActive: 1, category: 1 });
 productSchema.index({ tag: 1 });
+productSchema.index({ deletedAt: 1 });
 
 export const ProductModel = model<IProduct>("Product", productSchema);
