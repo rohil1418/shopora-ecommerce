@@ -24,6 +24,7 @@ export type PublicProduct = {
   rating?: number;
   reviewsCount: number;
   isActive: boolean;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -58,6 +59,7 @@ export function toPublicProduct(doc: HydratedDocument<IProduct>): PublicProduct 
     rating: doc.rating,
     reviewsCount: doc.reviewsCount,
     isActive: doc.isActive,
+    deletedAt: doc.deletedAt ?? null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -80,6 +82,7 @@ const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]
 
 export function buildFilter(query: ProductQuery, status: StatusFilter): MongoFilter {
   const conditions: Record<string, unknown>[] = [];
+  conditions.push(status === "trash" ? { deletedAt: { $ne: null } } : { deletedAt: null });
 
   if (status === "active") conditions.push({ isActive: true });
   if (status === "inactive") conditions.push({ isActive: false });
@@ -129,7 +132,7 @@ function assertValidId(id: string): void {
 
 export async function getProductById(id: string, onlyActive: boolean): Promise<PublicProduct> {
   assertValidId(id);
-  const doc = await ProductModel.findOne(onlyActive ? { _id: id, isActive: true } : { _id: id });
+  const doc = await ProductModel.findOne(onlyActive ? { _id: id, isActive: true, deletedAt: null } : { _id: id });
   if (!doc) throw new AppError(404, "Product not found");
   return toPublicProduct(doc);
 }
@@ -187,8 +190,32 @@ export async function setProductActive(id: string, isActive: boolean): Promise<P
   return toPublicProduct(doc);
 }
 
-export async function deleteProduct(id: string): Promise<void> {
+export async function trashProduct(id: string): Promise<void> {
   assertValidId(id);
-  const doc = await ProductModel.findByIdAndDelete(id);
+  const doc = await ProductModel.findOneAndUpdate(
+    { _id: id, deletedAt: null },
+    { deletedAt: new Date() }
+  );
   if (!doc) throw new AppError(404, "Product not found");
+}
+
+export async function restoreProduct(id: string): Promise<PublicProduct> {
+  assertValidId(id);
+  const doc = await ProductModel.findOneAndUpdate(
+    { _id: id, deletedAt: { $ne: null } },
+    { deletedAt: null },
+    { returnDocument: "after" }
+  );
+  if (!doc) throw new AppError(404, "Product not found in trash");
+  return toPublicProduct(doc);
+}
+
+export async function purgeProduct(id: string): Promise<void> {
+  assertValidId(id);
+  const doc = await ProductModel.findById(id);
+  if (!doc) throw new AppError(404, "Product not found");
+  if (!doc.deletedAt) {
+    throw new AppError(400, "Move the product to trash before deleting it permanently");
+  }
+  await doc.deleteOne();
 }
