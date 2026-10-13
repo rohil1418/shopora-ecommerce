@@ -1,5 +1,6 @@
 import type { Collection, Product, ProductCategory, ProductFilter } from "../types";
 import { getImage } from "./images";
+import { getCachedProduct } from "./productCache";
 
 export const PRODUCT_FILTERS: { value: ProductFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -307,5 +308,10 @@ export const getCollection = (slug: string | undefined): Collection | undefined 
 export const getProductUid = (product: Pick<Product, "collection" | "id">): string =>
   `${product.collection}-${product.id}`;
 
-export const getProduct = (uid: string | undefined): Product | undefined =>
-  allProducts.find((product) => getProductUid(product) === uid);
+export const getProduct = (uid: string | undefined): Product | undefined => {
+  if (!uid) return undefined;
+  const local = collections
+    .flatMap((collection) => collection.products)
+    .find((product) => getProductUid(product) === uid);
+  return local ?? getCachedProduct(uid);
+};
