@@ -11,6 +11,12 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+export const PAYMENT_METHODS = ["cod", "razorpay"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const PAYMENT_STATUSES = ["pending", "paid", "failed"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export interface IOrderItem {
   product: Types.ObjectId;
   sku: string;
@@ -36,6 +42,11 @@ export interface IOrder {
   };
   subtotal: number;
   shippingFee: number;
+  platformFee: number;
+  couponCode?: string;
+  couponDiscount: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
   total: number;
   status: OrderStatus;
   createdAt: Date;
@@ -100,6 +111,11 @@ const orderSchema = new Schema<IOrder>(
     },
     subtotal: { type: Number, required: true, min: 0 },
     shippingFee: { type: Number, required: true, min: 0 },
+    platformFee: { type: Number, default: 0, min: 0 },
+    couponCode: { type: String, trim: true, uppercase: true },
+    couponDiscount: { type: Number, default: 0, min: 0 },
+    paymentMethod: { type: String, enum: [...PAYMENT_METHODS], default: "cod" },
+    paymentStatus: { type: String, enum: [...PAYMENT_STATUSES], default: "pending" },
     total: { type: Number, required: true, min: 0 },
     status: {
       type: String,
