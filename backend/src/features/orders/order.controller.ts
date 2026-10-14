@@ -3,9 +3,10 @@ import { Types } from "mongoose";
 import { OrderModel } from "./order.model";
 import {
   createOrderSchema,
+  quoteOrderSchema,
   updateOrderStatusSchema,
 } from "./order.schema";
-import { createOrder } from "./order.service";
+import { buildQuote, createOrder } from "./order.service";
 
 type AuthRequest = Request & {
   user?: {
@@ -51,6 +52,29 @@ export async function createOrderController(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to create order";
+
+    return res.status(400).json({ message });
+  }
+}
+
+export async function quoteOrderController(
+  req: Request,
+  res: Response
+) {
+  const parsed = quoteOrderSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: "Invalid order details",
+      errors: parsed.error.flatten(),
+    });
+  }
+
+  try {
+    return res.status(200).json(await buildQuote(parsed.data));
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to price this order";
 
     return res.status(400).json({ message });
   }
