@@ -1,144 +1,196 @@
-import mongoose, { Types } from "mongoose";
-import { ProductModel } from "../products/product.model";
+import mongoose, { Types, type ClientSession, type HydratedDocument } from "mongoose";
+import { AppError } from "../../shared/errors/AppError";
+import { ProductModel, type IProduct } from "../products/product.model";
 import { OrderModel, type IOrderItem } from "./order.model";
-import type { CreateOrderInput } from "./order.schema";
+import { priceOrder, type PriceLine } from "./order.pricing";
+import type { CreateOrderInput, OrderItemInput, QuoteInput } from "./order.schema";
 
-export async function createOrder(
-  userId: string,
-  input: CreateOrderInput
-) {
+const MAX_QTY = 10;
+
+type ResolvedLine = {
+  product: HydratedDocument<IProduct>;
+  size: string | null;
+  quantity: number;
+};
+
+async function resolveLines(
+  items: OrderItemInput[],
+  session?: ClientSession
+): Promise<ResolvedLine[]> {
+  const ids = items.flatMap((item) => (item.productId ? [item.productId] : []));
+  const skus = items.flatMap((item) => (item.sku ? [item.sku.toUpperCase()] : []));
+
+  const query = ProductModel.find({
+    isActive: true,
+    deletedAt: null,
+    $or: [{ _id: { $in: ids } }, { sku: { $in: skus } }],
+  });
+  if (session) query.session(session);
+  const products = await query;
+
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const bySku = new Map(products.map((product) => [product.sku, product]));
+  const grouped = new Map<string, ResolvedLine>();
+
+  for (const item of items) {
+    const product =
+      (item.productId ? byId.get(item.productId.toLowerCase()) : undefined) ??
+      (item.sku ? bySku.get(item.sku.toUpperCase()) : undefined);
+
+    if (!product) {
+      throw new AppError(400, "An item in your bag is no longer available. Please review your bag.");
+    }
+
+    let size: string | null = null;
+    if (product.sizes.length > 0) {
+      if (!item.size) throw new AppError(400, `Please select a size for ${product.title}`);
+
+      const match = product.sizes.find(
+        (candidate) => candidate.label.toLowerCase() === item.size!.toLowerCase()
+      );
+      if (!match) {
+        throw new AppError(400, `Size ${item.size} is not available for ${product.title}`);
+      }
+      size = match.label;
+    }
+
+    const key = `${product.id}:${size ?? ""}`;
+    const quantity = (grouped.get(key)?.quantity ?? 0) + item.quantity;
+    if (quantity > MAX_QTY) {
+      throw new AppError(400, `You can order at most ${MAX_QTY} units of ${product.title}`);
+    }
+    grouped.set(key, { product, size, quantity });
+  }
+
+  return [...grouped.values()];
+}
+
+const originalPriceOf = (product: IProduct): number =>
+  Math.max(product.originalPrice ?? product.price, product.price);
+
+const toPriceLines = (lines: ResolvedLine[]): PriceLine[] =>
+  lines.map(({ product, quantity }) => ({
+    price: product.price,
+    originalPrice: originalPriceOf(product),
+    quantity,
+  }));
+
+function availableStock({ product, size }: ResolvedLine): number {
+  if (size) return product.sizes.find((candidate) => candidate.label === size)?.stock ?? 0;
+  return product.stock;
+}
+
+async function reserveStock(line: ResolvedLine, session: ClientSession): Promise<void> {
+  const { product, size, quantity } = line;
+
+  const result = size
+    ? await ProductModel.updateOne(
+        {
+          _id: product._id,
+          isActive: true,
+          deletedAt: null,
+          sizes: { $elemMatch: { label: size, stock: { $gte: quantity } } },
+        },
+        { $inc: { "sizes.$.stock": -quantity } },
+        { session }
+      )
+    : await ProductModel.updateOne(
+        { _id: product._id, isActive: true, deletedAt: null, stock: { $gte: quantity } },
+        { $inc: { stock: -quantity } },
+        { session }
+      );
+
+  if (result.modifiedCount !== 1) {
+    throw new AppError(
+      409,
+      `Insufficient stock for ${product.title}${size ? ` (${size})` : ""}`
+    );
+  }
+}
+
+const generateOrderNumber = (): string =>
+  `SHP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+export async function buildQuote(input: QuoteInput) {
+  const lines = await resolveLines(input.items);
+  const { breakdown, couponError } = priceOrder(toPriceLines(lines), input.couponCode);
+
+  const items = lines.map((line) => {
+    const available = availableStock(line);
+    const issue =
+      line.quantity <= available
+        ? null
+        : available === 0
+          ? "Out of stock"
+          : `Only ${available} left`;
+
+    return {
+      productId: line.product.id,
+      sku: line.product.sku,
+      title: line.product.title,
+      image: line.product.images[0] ?? "",
+      size: line.size,
+      quantity: line.quantity,
+      price: line.product.price,
+      originalPrice: originalPriceOf(line.product),
+      issue,
+    };
+  });
+
+  return {
+    items,
+    ...breakdown,
+    couponError: couponError ?? null,
+    canOrder: items.every((item) => item.issue === null),
+  };
+}
+
+export async function createOrder(userId: string, input: CreateOrderInput) {
   const session = await mongoose.startSession();
   let createdOrder: unknown;
 
   try {
     await session.withTransaction(async () => {
-      const grouped = new Map<
-        string,
-        { productId: string; quantity: number; size?: string }
-      >();
-
-      for (const item of input.items) {
-        const key = `${item.productId}:${item.size?.toLowerCase() ?? ""}`;
-        const existing = grouped.get(key);
-
-        if (existing) {
-          existing.quantity += item.quantity;
-        } else {
-          grouped.set(key, { ...item });
-        }
-      }
+      const lines = await resolveLines(input.items, session);
+      const { breakdown, couponError } = priceOrder(toPriceLines(lines), input.couponCode);
+      if (couponError) throw new AppError(400, couponError);
 
       const orderItems: IOrderItem[] = [];
-      let subtotal = 0;
-
-      for (const item of grouped.values()) {
-        if (item.quantity > 10) {
-          throw new Error("Maximum 10 units allowed per product and size");
-        }
-
-        const product = await ProductModel.findOne({
-          _id: item.productId,
-          isActive: true,
-        }).session(session);
-
-        if (!product) {
-          throw new Error(`Product not available: ${item.productId}`);
-        }
-
-        if (product.sizes.length > 0) {
-          if (!item.size) {
-            throw new Error(`Please select a size for ${product.title}`);
-          }
-
-          const matchingSize = product.sizes.find(
-            (s) => s.label.toLowerCase() === item.size!.toLowerCase()
-          );
-
-          if (!matchingSize) {
-            throw new Error(`Invalid size for ${product.title}`);
-          }
-
-          const updated = await ProductModel.updateOne(
-            {
-              _id: product._id,
-              isActive: true,
-              sizes: {
-                $elemMatch: {
-                  label: matchingSize.label,
-                  stock: { $gte: item.quantity },
-                },
-              },
-            },
-            {
-              $inc: { "sizes.$[selectedSize].stock": -item.quantity },
-            },
-            {
-              session,
-              arrayFilters: [
-                {
-                  "selectedSize.label": matchingSize.label,
-                  "selectedSize.stock": { $gte: item.quantity },
-                },
-            ],
-            }
-          );
-
-          if (updated.modifiedCount !== 1) {
-            throw new Error(`Insufficient stock for ${product.title} (${matchingSize.label})`);
-          }
-        } else {
-          const updated = await ProductModel.updateOne(
-            {
-              _id: product._id,
-              isActive: true,
-              stock: { $gte: item.quantity },
-            },
-            { $inc: { stock: -item.quantity } },
-            { session }
-          );
-
-          if (updated.modifiedCount !== 1) {
-            throw new Error(`Insufficient stock for ${product.title}`);
-          }
-        }
-
-        const lineTotal = product.price * item.quantity;
-        subtotal += lineTotal;
-
+      for (const line of lines) {
+        await reserveStock(line, session);
         orderItems.push({
-          product: product._id as Types.ObjectId,
-          sku: product.sku,
-          title: product.title,
-          image: product.images[0] ?? "",
-          quantity: item.quantity,
-          ...(item.size ? { size: item.size } : {}),
-          price: product.price,
+          product: line.product._id as Types.ObjectId,
+          sku: line.product.sku,
+          title: line.product.title,
+          image: line.product.images[0] ?? "",
+          quantity: line.quantity,
+          ...(line.size ? { size: line.size } : {}),
+          price: line.product.price,
         });
       }
 
-      const shippingFee = subtotal >= 999 ? 0 : 49;
-
-      const orderNumber = `SHP-${Date.now()}-${Math.floor(
-        1000 + Math.random() * 9000
-      )}`;
-
-      const orders = await OrderModel.create(
+      const [order] = await OrderModel.create(
         [
           {
-            orderNumber,
+            orderNumber: generateOrderNumber(),
             user: new Types.ObjectId(userId),
             items: orderItems,
             shippingAddress: input.shippingAddress,
-            subtotal,
-            shippingFee,
-            total: subtotal + shippingFee,
+            subtotal: breakdown.subtotal,
+            shippingFee: breakdown.shippingFee,
+            platformFee: breakdown.platformFee,
+            ...(breakdown.couponCode ? { couponCode: breakdown.couponCode } : {}),
+            couponDiscount: breakdown.couponDiscount,
+            total: breakdown.total,
+            paymentMethod: input.paymentMethod,
+            paymentStatus: "pending",
             status: "pending",
           },
         ],
         { session }
       );
 
-      createdOrder = orders[0].toObject();
+      createdOrder = order.toObject();
     });
 
     return createdOrder;
