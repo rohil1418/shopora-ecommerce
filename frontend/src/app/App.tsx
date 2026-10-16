@@ -15,6 +15,7 @@ import SiteLayout from "./SiteLayout";
 import AdminProductsPage from "../pages/AdminProductsPage";
 import AdminProductFormPage from "../pages/AdminProductFormPage";
 import CheckoutPage from "../pages/CheckoutPage";
+import OrderConfirmationPage from "../pages/OrderConfirmationPage";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
                     <Route path="/product/:uid" element={<ProductPage />} />
                     <Route path="/bag" element={<BagPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Route>
 
