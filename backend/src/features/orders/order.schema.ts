@@ -35,7 +35,7 @@ export const createOrderSchema = z.object({
     pincode: z.string().trim().regex(/^\d{6}$/, "Invalid pincode"),
   }),
 
-  paymentMethod: z.enum(["cod"]).default("cod"),
+    paymentMethod: z.enum(["cod", "razorpay"]).default("cod"),
 });
 
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
