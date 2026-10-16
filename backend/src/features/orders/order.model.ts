@@ -47,6 +47,9 @@ export interface IOrder {
   couponDiscount: number;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  paidAt?: Date;
   total: number;
   status: OrderStatus;
   createdAt: Date;
@@ -116,6 +119,9 @@ const orderSchema = new Schema<IOrder>(
     couponDiscount: { type: Number, default: 0, min: 0 },
     paymentMethod: { type: String, enum: [...PAYMENT_METHODS], default: "cod" },
     paymentStatus: { type: String, enum: [...PAYMENT_STATUSES], default: "pending" },
+    razorpayOrderId: { type: String, trim: true },
+    razorpayPaymentId: { type: String, trim: true },
+    paidAt: { type: Date },
     total: { type: Number, required: true, min: 0 },
     status: {
       type: String,
