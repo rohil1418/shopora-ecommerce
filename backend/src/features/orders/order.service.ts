@@ -1,8 +1,14 @@
-import mongoose, { Types, type ClientSession, type HydratedDocument } from "mongoose";
+import mongoose, {
+  Types,
+  type ClientSession,
+  type QueryFilter,
+  type HydratedDocument,
+} from "mongoose";
 import { AppError } from "../../shared/errors/AppError";
 import { ProductModel, type IProduct } from "../products/product.model";
-import { OrderModel, type IOrderItem } from "./order.model";
+import { OrderModel, type IOrder, type IOrderItem } from "./order.model";
 import { priceOrder, type PriceLine } from "./order.pricing";
+import { isRazorpayConfigured } from "../payments/razorpay.client";
 import type { CreateOrderInput, OrderItemInput, QuoteInput } from "./order.schema";
 
 const MAX_QTY = 10;
@@ -146,6 +152,11 @@ export async function buildQuote(input: QuoteInput) {
 }
 
 export async function createOrder(userId: string, input: CreateOrderInput) {
+  if (input.paymentMethod === "razorpay" && !isRazorpayConfigured()) {
+    throw new AppError(503, "Online payment is not available right now");
+  }
+  await expireStaleOnlineOrders().catch(() => undefined);
+
   const session = await mongoose.startSession();
   let createdOrder: unknown;
 
@@ -196,5 +207,94 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     return createdOrder;
   } finally {
     await session.endSession();
+  }
+}
+
+type OrderFilter = NonNullable<Parameters<typeof OrderModel.find>[0]>;
+
+const PAYMENT_WINDOW_MS = 30 * 60 * 1000;
+
+export async function restockOrder(
+  order: Pick<IOrder, "items">,
+  session?: ClientSession
+): Promise<void> {
+  const options = session ? { session } : {};
+
+  for (const item of order.items) {
+    if (item.size) {
+      await ProductModel.updateOne(
+        { _id: item.product, "sizes.label": item.size },
+        { $inc: { "sizes.$.stock": item.quantity } },
+        options
+      );
+    } else {
+      await ProductModel.updateOne(
+        { _id: item.product },
+        { $inc: { stock: item.quantity } },
+        options
+      );
+    }
+  }
+}
+
+type CancelOptions = {
+  userId?: string;
+  onlyPending?: boolean;
+  unpaidOnly?: boolean;
+  markPaymentFailed?: boolean;
+};
+
+export async function cancelOrder(orderId: string, options: CancelOptions = {}) {
+  const filter: QueryFilter<IOrder> = {
+  _id: orderId,
+  status: options.onlyPending
+    ? "pending"
+    : { $in: ["pending", "processing"] },
+};
+  if (options.userId) filter.user = new Types.ObjectId(options.userId);
+  if (options.unpaidOnly) filter.paymentStatus = { $ne: "paid" };
+
+  const update = {
+    status: "cancelled" as const,
+    ...(options.markPaymentFailed ? { paymentStatus: "failed" as const } : {}),
+  };
+
+  const session = await mongoose.startSession();
+  const result: { order: HydratedDocument<IOrder> | null } = { order: null };
+
+  try {
+    await session.withTransaction(async () => {
+      const order = await OrderModel.findOneAndUpdate(filter as OrderFilter, update, {
+        session,
+        returnDocument: "after",
+      });
+      if (!order) return;
+      await restockOrder(order, session);
+      result.order = order;
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  return result.order;
+}
+
+export async function expireStaleOnlineOrders(): Promise<void> {
+  const stale = await OrderModel.find({
+    paymentMethod: "razorpay",
+    paymentStatus: "pending",
+    status: "pending",
+    createdAt: { $lt: new Date(Date.now() - PAYMENT_WINDOW_MS) },
+  })
+    .select("_id")
+    .limit(50)
+    .lean();
+
+  for (const { _id } of stale) {
+    await cancelOrder(String(_id), {
+      onlyPending: true,
+      unpaidOnly: true,
+      markPaymentFailed: true,
+    });
   }
 }
