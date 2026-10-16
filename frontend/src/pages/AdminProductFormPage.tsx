@@ -30,7 +30,7 @@ export default function AdminProductFormPage() {
       .then(([options, existing]) => {
         if (ignore) return;
         setCollections(options);
-        setProduct(existing);
+        setProduct(existing?.product ?? null);
       })
       .catch((err) => {
         if (!ignore) setError(getErrorMessage(err));
