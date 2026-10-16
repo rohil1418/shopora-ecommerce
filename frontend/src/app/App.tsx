@@ -14,6 +14,7 @@ import PanelHost from "./PanelHost";
 import SiteLayout from "./SiteLayout";
 import AdminProductsPage from "../pages/AdminProductsPage";
 import AdminProductFormPage from "../pages/AdminProductFormPage";
+import CheckoutPage from "../pages/CheckoutPage";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
                     <Route path="/collections/:slug" element={<CollectionPage />} />
                     <Route path="/product/:uid" element={<ProductPage />} />
                     <Route path="/bag" element={<BagPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Route>
 
