@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { Check, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { AnimatePresence } from "motion/react";
+import { ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { saveDraft } from "@/features/checkout";
 import { getProduct } from "@/features/products";
 import { isValidPincode, usePincode } from "@/shared/hooks/usePincode";
 import { usePanels } from "@/shared/panels";
 import { useCart, useWishlist } from "@/shared/store";
-import { formatPrice } from "@/shared/utils/format";
 import { findCoupon, summarize } from "@/shared/utils/pricing";
 import type { BagLine } from "../types";
 import BagItemCard from "./BagItemCard";
@@ -17,6 +17,7 @@ import PriceDetails from "./PriceDetails";
 const lineKey = (uid: string, size: string | null): string => `${uid}|${size ?? "-"}`;
 
 export default function BagView() {
+  const navigate = useNavigate();
   const { items, removeItem, setQty, setSize } = useCart();
   const { add: addToWishlist } = useWishlist();
   const { openPanel } = usePanels();
@@ -25,7 +26,6 @@ export default function BagView() {
   const [pincodeDraft, setPincodeDraft] = useState<string>(pincode);
   const [deselected, setDeselected] = useState<string[]>([]);
   const [couponCode, setCouponCode] = useState<string | null>(null);
-  const [placedTotal, setPlacedTotal] = useState<number | null>(null);
 
   const lines: BagLine[] = items.flatMap((item) => {
     const product = getProduct(item.uid);
@@ -66,11 +66,17 @@ export default function BagView() {
     removeLines(target);
   };
 
-  const placeOrder = () => {
+   const goToCheckout = () => {
     if (selectedLines.length === 0) return;
-    setPlacedTotal(summary.total);
-    removeLines(selectedLines);
-    setCouponCode(null);
+    saveDraft({
+      items: selectedLines.map((line) => ({
+        uid: line.item.uid,
+        size: line.item.size,
+        qty: line.item.qty,
+      })),
+      couponCode,
+    });
+    navigate("/checkout");
   };
 
   const savePincode = () => {
@@ -78,44 +84,6 @@ export default function BagView() {
     setPincode(pincodeDraft);
     setEditingPincode(false);
   };
-
-  if (placedTotal !== null) {
-    return (
-      <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
-        <motion.span
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 16 }}
-          className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500 text-white"
-        >
-          <Check size={40} />
-        </motion.span>
-        <h1 className="mt-6 text-3xl font-bold text-[#0a1f44]">Order placed!</h1>
-        <p className="mt-3 text-gray-600">
-          Thank you for shopping with Shopora. Your order total was{" "}
-          <span className="font-bold">{formatPrice(placedTotal)}</span>. This is a demo store, so
-          no payment was taken.
-        </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Link
-            to="/"
-            className="bg-[#0a1f44] px-6 py-3 text-sm font-medium uppercase tracking-wide text-white transition-colors hover:bg-red-600"
-          >
-            Continue shopping
-          </Link>
-          {lines.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setPlacedTotal(null)}
-              className="border border-[#0a1f44] px-6 py-3 text-sm font-medium uppercase tracking-wide text-[#0a1f44] transition-colors hover:border-red-600 hover:text-red-600"
-            >
-              Back to bag
-            </button>
-          )}
-        </div>
-      </main>
-    );
-  }
 
   if (lines.length === 0) return <EmptyBag />;
 
@@ -253,7 +221,7 @@ export default function BagView() {
           <PriceDetails
             summary={summary}
             canOrder={selectedLines.length > 0}
-            onPlaceOrder={placeOrder}
+            onPlaceOrder={goToCheckout}
           />
         </aside>
       </div>
