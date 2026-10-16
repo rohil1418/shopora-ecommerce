@@ -48,3 +48,24 @@ export function placeOrder(draft: CheckoutDraft, address: Address, paymentMethod
     })
     .then((data) => data.order);
 }
+
+export type RazorpayPaymentInfo = {
+  keyId: string;
+  razorpayOrderId: string;
+  amount: number;
+  currency: string;
+  orderNumber: string;
+};
+
+export type RazorpayProof = {
+  orderId: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+};
+
+export const createRazorpayPayment = (orderId: string) =>
+  api.post<RazorpayPaymentInfo>("/payments/razorpay/order", { orderId });
+
+export const verifyRazorpayPayment = (proof: RazorpayProof) =>
+  api.post<{ order: Order }>("/payments/razorpay/verify", proof).then((data) => data.order);
