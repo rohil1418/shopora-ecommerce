@@ -5,3 +5,4 @@ export { clearDraft, loadDraft, saveDraft } from "./draft";
 export { useCheckoutQuote } from "./hooks/useCheckoutQuote";
 export type { CheckoutDraft, DraftItem, Quote, QuoteItem } from "./types";
 export { default as AddressStep } from "./components/AddressStep";
+export { default as PaymentStep } from "./components/PaymentStep";
