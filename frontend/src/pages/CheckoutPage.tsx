@@ -5,6 +5,7 @@ import {
   AddressStep,
   CheckoutStepper,
   OrderSummary,
+  PaymentStep,
   loadDraft,
   useCheckoutQuote,
 } from "@/features/checkout";
@@ -61,14 +62,7 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              <div className="border p-6">
-                <h2 className="text-xs font-bold uppercase tracking-wide text-gray-800">
-                  Payment
-                </h2>
-                <p className="mt-2 text-sm text-gray-500">
-                  Payment options and Place order come in the next step.
-                </p>
-              </div>
+              <PaymentStep draft={draft} address={address} quote={quote} />
             </>
           )}
 
