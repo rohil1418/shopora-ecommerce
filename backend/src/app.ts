@@ -11,6 +11,7 @@ import { UPLOAD_ROOT, uploadRouter } from "./features/uploads";
 import { errorHandler, notFound } from "./shared/middleware/errorHandler";
 import { orderRouter } from "./features/orders";
 import { addressRouter } from "./features/addresses";
+import { paymentRouter } from "./features/payments";
 
 export function createApp() {
   const app = express();
@@ -29,6 +30,7 @@ export function createApp() {
   app.use("/api/admin/uploads", uploadRouter);
   app.use("/api/admin", adminCatalogRouter);
   app.use("/api/orders", orderRouter);
+  app.use("/api/payments", paymentRouter);
   app.use("/api/addresses", addressRouter);
 
   app.use(notFound);
