@@ -12,6 +12,7 @@ import { errorHandler, notFound } from "./shared/middleware/errorHandler";
 import { orderRouter } from "./features/orders";
 import { addressRouter } from "./features/addresses";
 import { paymentRouter } from "./features/payments";
+import { dashboardRouter } from "./features/dashboard";
 
 export function createApp() {
   const app = express();
@@ -28,6 +29,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api", catalogRouter);
   app.use("/api/admin/uploads", uploadRouter);
+  app.use("/api/admin/dashboard", dashboardRouter);
   app.use("/api/admin", adminCatalogRouter);
   app.use("/api/orders", orderRouter);
   app.use("/api/payments", paymentRouter);
