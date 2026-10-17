@@ -16,6 +16,9 @@ import AdminProductsPage from "../pages/AdminProductsPage";
 import AdminProductFormPage from "../pages/AdminProductFormPage";
 import CheckoutPage from "../pages/CheckoutPage";
 import OrderConfirmationPage from "../pages/OrderConfirmationPage";
+import AdminOrdersPage from "../pages/AdminOrdersPage";
+import OrderDetailPage from "../pages/OrderDetailPage";
+import OrdersPage from "../pages/OrdersPage";
 
 export default function App() {
   return (
@@ -34,6 +37,8 @@ export default function App() {
                     <Route path="/bag" element={<BagPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+                    <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/orders/:id" element={<OrderDetailPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Route>
 
@@ -43,6 +48,7 @@ export default function App() {
                       <Route path="products" element={<AdminProductsPage />} />
                       <Route path="products/new" element={<AdminProductFormPage />} />
                       <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+                      <Route path="orders" element={<AdminOrdersPage />} />
                     </Route>
                   </Route>
                 </Routes>
