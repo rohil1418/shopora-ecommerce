@@ -6,7 +6,7 @@ import { useAuth } from "@/shared/store";
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard, end: true, ready: true },
   { label: "Products", to: "/admin/products", icon: Package, end: false, ready: true },
-  { label: "Orders", to: "/admin/orders", icon: ShoppingBag, end: false, ready: false },
+  { label: "Orders", to: "/admin/orders", icon: ShoppingBag, end: false, ready: true },
 ];
 
 export default function AdminLayout() {
