@@ -6,16 +6,20 @@ export { default as ProductForm } from "./components/ProductForm";
 export {
   createAdminProduct,
   deleteAdminProduct,
+  fetchAdminOrders,
   fetchAdminProduct,
   fetchAdminProducts,
   fetchCollectionOptions,
   purgeAdminProduct,
   restoreAdminProduct,
+  updateAdminOrderStatus,
   updateAdminProduct,
   uploadImages,
 } from "./api";
 export type { ProductView } from "./api";
 export type {
+  AdminOrder,
+  AdminOrderList,
   AdminProduct,
   AdminProductList,
   CollectionOption,
