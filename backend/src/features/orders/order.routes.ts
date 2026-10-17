@@ -5,6 +5,7 @@ import {
   quoteOrderController,
   getMyOrdersController,
   getMyOrderByIdController,
+  cancelMyOrderController,
   getAllOrdersController,
   updateOrderStatusController,
 } from "./order.controller";
@@ -15,6 +16,7 @@ orderRouter.post("/", requireAuth, createOrderController);
 orderRouter.post("/quote", requireAuth, quoteOrderController);
 orderRouter.get("/my-orders", requireAuth, getMyOrdersController);
 orderRouter.get("/my-orders/:id", requireAuth, getMyOrderByIdController);
+orderRouter.post("/my-orders/:id/cancel", requireAuth, cancelMyOrderController);
 
 orderRouter.get("/", requireAdmin, getAllOrdersController);
 orderRouter.patch("/:id/status", requireAdmin, updateOrderStatusController);
