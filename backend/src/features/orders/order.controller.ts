@@ -1,12 +1,13 @@
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
-import { OrderModel } from "./order.model";
+import { AppError } from "../../shared/errors/AppError";
+import { ORDER_STATUSES, OrderModel, type OrderStatus } from "./order.model";
 import {
   createOrderSchema,
   quoteOrderSchema,
   updateOrderStatusSchema,
 } from "./order.schema";
-import { buildQuote, createOrder } from "./order.service";
+import { buildQuote, cancelMyOrder, cancelOrder, createOrder } from "./order.service";
 
 type AuthRequest = Request & {
   user?: {
@@ -127,26 +128,64 @@ export async function getMyOrderByIdController(
   return res.status(200).json({ order });
 }
 
-export async function getAllOrdersController(
-  _req: Request,
-  res: Response
-) {
-  const orders = await OrderModel.find()
-    .populate("user", "name email")
-    .sort({ createdAt: -1 })
-    .lean();
+export async function cancelMyOrderController(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = req.params.id as string;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Please login first" });
+  }
+
+  if (!Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid order ID" });
+  }
+
+  try {
+    const order = await cancelMyOrder(userId, id);
+    return res.status(200).json({ message: "Order cancelled", order });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+}
+
+export async function getAllOrdersController(req: Request, res: Response) {
+  const status = ORDER_STATUSES.find((value) => value === req.query.status);
+  const page = Math.max(1, Number.parseInt(String(req.query.page ?? "1"), 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(String(req.query.limit ?? "20"), 10) || 20));
+  const filter = status ? { status } : {};
+
+  const [items, total] = await Promise.all([
+    OrderModel.find(filter)
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    OrderModel.countDocuments(filter),
+  ]);
 
   return res.status(200).json({
-    count: orders.length,
-    orders,
+    items,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
   });
 }
 
-export async function updateOrderStatusController(
-  req: Request,
-  res: Response
-) {
-  const id  = req.params.id as string;
+const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
+  pending: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
+export async function updateOrderStatusController(req: Request, res: Response) {
+  const id = req.params.id as string;
 
   if (!Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid order ID" });
@@ -167,19 +206,31 @@ export async function updateOrderStatusController(
     return res.status(404).json({ message: "Order not found" });
   }
 
-  if (order.status === "cancelled" && parsed.data.status !== "cancelled") {
+  const next = parsed.data.status;
+
+  if (next === order.status) {
+    return res.status(200).json({ message: "Order status updated successfully", order });
+  }
+
+  if (!NEXT_STATUSES[order.status].includes(next)) {
     return res.status(400).json({
-      message: "A cancelled order cannot be reopened",
+      message: `An order that is ${order.status} cannot be changed to ${next}`,
     });
   }
 
-  if (order.status === "delivered" && parsed.data.status !== "delivered") {
-    return res.status(400).json({
-      message: "A delivered order cannot change status",
-    });
+  if (next === "cancelled") {
+    const cancelled = await cancelOrder(id);
+    if (!cancelled) {
+      return res.status(409).json({ message: "This order could not be cancelled. Refresh and try again." });
+    }
+    return res.status(200).json({ message: "Order cancelled and stock restored", order: cancelled });
   }
 
-  order.status = parsed.data.status;
+  order.status = next;
+  if (next === "delivered" && order.paymentMethod === "cod") {
+    order.paymentStatus = "paid";
+    order.paidAt = new Date();
+  }
   await order.save();
 
   return res.status(200).json({
