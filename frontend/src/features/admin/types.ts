@@ -1,4 +1,5 @@
 import type { ProductTag } from "./constants";
+import type { Order } from "@/features/orders";
 
 export type AdminProductImage = string | { url: string };
 
@@ -50,3 +51,16 @@ export type ProductPayload = {
 };
 
 export type CollectionOption = { slug: string; title: string };
+
+export type AdminOrder = Omit<Order, "razorpayPaymentId"> & {
+  razorpayPaymentId?: string;
+  user: { _id: string; name: string; email: string } | null;
+};
+
+export type AdminOrderList = {
+  items: AdminOrder[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
