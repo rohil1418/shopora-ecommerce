@@ -1,6 +1,6 @@
 import { api, ApiError } from "@/shared/api";
 import { VIRTUAL_COLLECTIONS } from "./constants";
-import type { AdminProduct, AdminProductList, CollectionOption, ProductPayload, AdminOrderList } from "./types";
+import type { AdminProduct, AdminProductList, CollectionOption, ProductPayload, AdminOrderList, DashboardData } from "./types";
 import { compressImage } from "./imageCompress";
 import type { Order, OrderStatus } from "@/features/orders";
 
@@ -86,4 +86,8 @@ export function fetchAdminOrders(page: number, status: "all" | OrderStatus, limi
 
 export function updateAdminOrderStatus(id: string, status: OrderStatus) {
   return api.patch<{ message: string; order: Order }>(`/orders/${id}/status`, { status });
+}
+
+export function fetchDashboard() {
+  return api.get<DashboardData>("/admin/dashboard");
 }
