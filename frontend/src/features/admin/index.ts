@@ -3,6 +3,8 @@ export { default as AdminLayout } from "./components/AdminLayout";
 export { default as ConfirmDialog } from "./components/ConfirmDialog";
 export { default as ProductsTable } from "./components/ProductsTable";
 export { default as ProductForm } from "./components/ProductForm";
+export { default as SalesChart } from "./components/SalesChart";
+export { default as StatCard } from "./components/StatCard";
 export {
   createAdminProduct,
   deleteAdminProduct,
@@ -10,6 +12,7 @@ export {
   fetchAdminProduct,
   fetchAdminProducts,
   fetchCollectionOptions,
+  fetchDashboard,
   purgeAdminProduct,
   restoreAdminProduct,
   updateAdminOrderStatus,
@@ -23,5 +26,6 @@ export type {
   AdminProduct,
   AdminProductList,
   CollectionOption,
+  DashboardData,
   ProductPayload,
 } from "./types";
