@@ -124,10 +124,16 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
-      <div className="mt-8 text-center">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link
+          to="/orders"
+          className="bg-[#0a1f44] px-6 py-3 text-sm font-medium uppercase tracking-wide text-white transition-colors hover:bg-red-600"
+        >
+          View my orders
+        </Link>
         <Link
           to="/"
-          className="inline-block bg-[#0a1f44] px-6 py-3 text-sm font-medium uppercase tracking-wide text-white transition-colors hover:bg-red-600"
+          className="border border-[#0a1f44] px-6 py-3 text-sm font-medium uppercase tracking-wide text-[#0a1f44] transition-colors hover:border-red-600 hover:text-red-600"
         >
           Continue shopping
         </Link>
