@@ -298,3 +298,16 @@ export async function expireStaleOnlineOrders(): Promise<void> {
     });
   }
 }
+
+export async function cancelMyOrder(userId: string, orderId: string) {
+  const cancelled = await cancelOrder(orderId, { userId, onlyPending: true, unpaidOnly: true });
+  if (cancelled) return cancelled.toObject();
+
+  const order = await OrderModel.findOne({ _id: orderId, user: userId }).lean();
+  if (!order) throw new AppError(404, "Order not found");
+  if (order.status === "cancelled") throw new AppError(400, "This order is already cancelled");
+  if (order.status === "pending" && order.paymentStatus === "paid") {
+    throw new AppError(400, "Paid orders cannot be cancelled here. Please contact support for a refund.");
+  }
+  throw new AppError(400, "This order can no longer be cancelled");
+}
