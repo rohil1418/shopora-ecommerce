@@ -1,7 +1,8 @@
 import { api, ApiError } from "@/shared/api";
 import { VIRTUAL_COLLECTIONS } from "./constants";
-import type { AdminProduct, AdminProductList, CollectionOption, ProductPayload } from "./types";
+import type { AdminProduct, AdminProductList, CollectionOption, ProductPayload, AdminOrderList } from "./types";
 import { compressImage } from "./imageCompress";
+import type { Order, OrderStatus } from "@/features/orders";
 
 const BASE_URL: string = import.meta.env.VITE_API_URL || "/api";
 
@@ -75,4 +76,14 @@ export async function uploadImages(files: File[]): Promise<string[]> {
   } finally {
     clearTimeout(timer);
   }
+}
+
+export function fetchAdminOrders(page: number, status: "all" | OrderStatus, limit = 20) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (status !== "all") params.set("status", status);
+  return api.get<AdminOrderList>(`/orders?${params.toString()}`);
+}
+
+export function updateAdminOrderStatus(id: string, status: OrderStatus) {
+  return api.patch<{ message: string; order: Order }>(`/orders/${id}/status`, { status });
 }
