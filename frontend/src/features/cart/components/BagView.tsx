@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { saveDraft } from "@/features/checkout";
 import { getProduct } from "@/features/products";
 import { isValidPincode, usePincode } from "@/shared/hooks/usePincode";
-import { usePanels } from "@/shared/panels";
 import { useCart, useWishlist } from "@/shared/store";
 import { findCoupon, summarize } from "@/shared/utils/pricing";
 import type { BagLine } from "../types";
@@ -20,7 +19,6 @@ export default function BagView() {
   const navigate = useNavigate();
   const { items, removeItem, setQty, setSize } = useCart();
   const { add: addToWishlist } = useWishlist();
-  const { openPanel } = usePanels();
   const [pincode, setPincode] = usePincode();
   const [editingPincode, setEditingPincode] = useState<boolean>(false);
   const [pincodeDraft, setPincodeDraft] = useState<string>(pincode);
@@ -195,19 +193,6 @@ export default function BagView() {
               ))}
             </AnimatePresence>
           </ul>
-
-          <div className="flex items-center justify-between gap-3 border px-4 py-5">
-            <p className="text-sm font-semibold text-gray-800">
-              Login to see items from your existing bag and wishlist.
-            </p>
-            <button
-              type="button"
-              onClick={() => openPanel("auth")}
-              className="shrink-0 text-xs font-bold uppercase tracking-wide text-red-600 hover:underline"
-            >
-              Login now
-            </button>
-          </div>
         </div>
 
         <aside className="space-y-6 lg:border-l lg:pl-6">
