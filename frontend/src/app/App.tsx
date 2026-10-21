@@ -19,6 +19,9 @@ import OrderConfirmationPage from "../pages/OrderConfirmationPage";
 import AdminOrdersPage from "../pages/AdminOrdersPage";
 import OrderDetailPage from "../pages/OrderDetailPage";
 import OrdersPage from "../pages/OrdersPage";
+import InfoPage from "@/features/info/InfoPage";
+import { INFO_PAGES } from "@/features/info/infoPages";
+import ContactPage from "@/features/info/ContactPage";
 
 export default function App() {
   return (
@@ -39,6 +42,10 @@ export default function App() {
                     <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/orders/:id" element={<OrderDetailPage />} />
+                    {INFO_PAGES.map((p) => (
+                      <Route key={p.path} path={p.path} element={<InfoPage page={p} />} />
+                    ))}
+                    <Route path="/contact" element={<ContactPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Route>
 
