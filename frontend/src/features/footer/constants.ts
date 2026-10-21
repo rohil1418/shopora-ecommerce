@@ -12,10 +12,7 @@ export const FOOTER_NOTE =
 
 const link = (label: string, href = "#"): FooterLink => ({ label, href });
 
-const pageLink = (label: string): FooterLink => ({
-  label,
-  href: `/${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
-});
+const pageLink = (label: string, href: string): FooterLink => ({ label, href });
 
 const panelLink = (label: string, panel: PanelName): FooterLink => ({
   label,
@@ -31,11 +28,11 @@ export const FOOTER_GROUPS: FooterGroup[] = [
   {
     title: "Help",
     links: [
-      pageLink("FAQs"),
-      pageLink("Shipping"),
-      pageLink("Returns"),
-      pageLink("Track Order"),
-      pageLink("Size Guide"),
+      pageLink("FAQs", "/help/faqs"),
+      pageLink("Shipping", "/help/shipping"),
+      pageLink("Returns", "/help/returns"),
+      pageLink("Track Order", "/help/track-order"),
+      pageLink("Size Guide", "/help/size-guide"),
     ],
   },
   {
@@ -84,25 +81,25 @@ export const FOOTER_GROUPS: FooterGroup[] = [
       panelLink("Login / Sign Up", "auth"),
       panelLink("My Wishlist", "wishlist"),
       link("Shopping Bag", "/bag"),
-      link("Contact Us"),
+      link("Contact Us", "/contact"),
     ],
   },
   {
     title: "Company",
     links: [
-      pageLink("About Us"),
-      pageLink("Careers"),
-      pageLink("Press"),
-      pageLink("Store Locator"),
+      pageLink("About Us", "/company/about"),
+      pageLink("Careers", "/company/careers"),
+      pageLink("Press", "/company/press"),
+      pageLink("Store Locator", "/company/store-locator"),
     ],
   },
   {
     title: "Legal",
     links: [
-      pageLink("Terms & Conditions"),
-      pageLink("Privacy Policy"),
-      pageLink("Accessibility"),
-      pageLink("Cookie Policy"),
+      pageLink("Terms & Conditions", "/legal/terms"),
+      pageLink("Privacy Policy", "/legal/privacy"),
+      pageLink("Accessibility", "/legal/accessibility"),
+      pageLink("Cookie Policy", "/legal/cookies"),
     ],
   },
 ];
