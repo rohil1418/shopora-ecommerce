@@ -73,6 +73,10 @@ export function collectionFilter(slug: string): Record<string, unknown> {
       return { tag: "Bestseller" };
     case "accessories":
       return { $or: [{ category: "accessories" }, { collectionSlug: "bags" }] };
+    case "men":
+      return { category: "men" };
+    case "women":
+      return { category: "women" };
     default:
       return { collectionSlug: slug };
   }
