@@ -23,7 +23,13 @@ const panelLink = (label: string, panel: PanelName): FooterLink => ({
 export const FOOTER_GROUPS: FooterGroup[] = [
   {
     title: "Shop",
-    links: [link("Men"), link("Women"), link("Kids"), link("Beauty"), link("Perfume")],
+    links: [
+      link("Men", "/collections/men"),
+      link("Women", "/collections/women"),
+      link("Kids", "/collections/kids"),
+      link("Beauty", "/collections/beauty"),
+      link("Perfume", "/collections/perfume"),
+    ],
   },
   {
     title: "Help",
