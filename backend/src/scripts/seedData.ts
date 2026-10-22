@@ -263,4 +263,18 @@ export const SEED_COLLECTIONS: SeedCollection[] = [
     isVirtual: true,
     rows: [],
   },
+  {
+  slug: "men",
+  title: "Men",
+  description: "Shirts, tees, jackets, footwear and more. Everything for his wardrobe.",
+  isVirtual: true,
+  rows: [],
+},
+{
+  slug: "women",
+  title: "Women",
+  description: "Tops, dresses, ethnic wear, bags and more. Styles for every occasion.",
+  isVirtual: true,
+  rows: [],
+},
 ];
