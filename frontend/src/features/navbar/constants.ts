@@ -11,7 +11,7 @@ const column = (title: string, labels: string[]): NavColumn => ({
 export const NAV_ITEMS: NavItem[] = [
   {
     label: "Men",
-    href: "#men",
+    href: "	/collections/men",
     columns: [
       column("Topwear", ["T-Shirts", "Polo Shirts", "Casual Shirts", "Formal Shirts", "Sweatshirts", "Sweaters", "Jackets", "Blazers & Coats"]),
       column("Bottomwear", ["Jeans", "Casual Trousers", "Formal Trousers", "Shorts", "Track Pants & Joggers"]),
@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Women",
-    href: "#women",
+    href: "	/collections/women",
     columns: [
       column("Western Wear", ["Dresses", "Tops & Tees", "Shirts", "Jeans", "Skirts", "Trousers", "Jackets & Coats"]),
       column("Ethnic Wear", ["Kurtas & Suits", "Sarees", "Lehengas", "Kurtis", "Dupattas"]),
@@ -33,7 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Kids",
-    href: "#kids",
+    href: "	/collections/kids",
     columns: [
       column("Boys", ["T-Shirts", "Shirts", "Jeans", "Shorts", "Jackets", "Sweatshirts"]),
       column("Girls", ["Dresses", "Tops", "Jeans", "Skirts", "Jackets", "Sweatshirts"]),
@@ -43,7 +43,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Beauty",
-    href: "#beauty",
+    href: "	/collections/beauty",
     columns: [
       column("Makeup", ["Lipstick", "Foundation", "Kajal & Eyeliner", "Mascara", "Nail Polish"]),
       column("Skincare", ["Face Wash", "Moisturisers", "Sunscreen", "Serums", "Face Masks"]),
@@ -53,7 +53,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Perfume",
-    href: "#perfume",
+    href: "	/collections/perfume",
     columns: [
       column("For Him", ["Eau de Parfum", "Eau de Toilette", "Body Mists", "Deodorants"]),
       column("For Her", ["Eau de Parfum", "Eau de Toilette", "Body Mists", "Roll-ons"]),
