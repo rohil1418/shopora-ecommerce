@@ -74,16 +74,11 @@ export default function ContactPage() {
     ev.preventDefault();
     if (!validate()) return;
 
-    const body = [
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      form.phone && `Phone: ${form.phone}`,
-      form.orderId && `Order ID: ${form.orderId}`,
-      "",
-      form.message,
-    ]
-      .filter((l) => l !== false)
-      .join("\n");
+        const lines = [`Name: ${form.name}`, `Email: ${form.email}`];
+    if (form.phone) lines.push(`Phone: ${form.phone}`);
+    if (form.orderId) lines.push(`Order ID: ${form.orderId}`);
+    lines.push("", form.message);
+    const body = lines.join("\n");
 
     const subject = `[${form.topic}] Message from ${form.name}`;
     window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
